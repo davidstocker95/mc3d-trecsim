@@ -5,7 +5,7 @@
 #include "mc3d_common.h"
 
 #include <vector>
-#include <tuple>
+#include <utility>
 #include <iostream>
 
 namespace MC3D_TRECSIM
@@ -15,6 +15,7 @@ namespace MC3D_TRECSIM
     {
     public:
         std::vector<int> KEYPOINTS;
+        std::vector<std::pair<int, int>> LIMBS;
         Scalar nu;
         unsigned int maxIter;
         Scalar keypointConfidenceThreshold;
@@ -36,6 +37,7 @@ namespace MC3D_TRECSIM
         int minValidKeyPoints;
 
         GMMParam() : KEYPOINTS(std::vector<int>()),
+                     LIMBS(std::vector<std::pair<int, int>>()),
                      nu(1.0),
                      maxIter(100),
                      keypointConfidenceThreshold(0.5),
@@ -82,6 +84,18 @@ namespace MC3D_TRECSIM
             {
                 std::cout << obj.KEYPOINTS[obj.KEYPOINTS.size()-1];
             }
+
+            std::cout << std::endl;
+            std::cout << "\tLIMBS: ";
+            for (int i = 0; i < obj.LIMBS.size()-1; i++)
+            {
+                std::cout << "\t\t(" << obj.LIMBS[i].first << ", " << obj.LIMBS[i].second << std::endl;
+            }
+            if (obj.LIMBS.size() > 0) 
+            {
+                std::cout << "\t\t(" << obj.LIMBS[obj.LIMBS.size() - 1].first << ", " << obj.LIMBS[obj.LIMBS.size() - 1].second << ")" << std::endl;
+            }
+
             std::cout << std::endl;
             std::cout << "\t" << "nu: " << obj.nu << std::endl;
             std::cout << "\t" << "maxIter: " << obj.maxIter << std::endl;

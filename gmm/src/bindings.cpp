@@ -194,6 +194,7 @@ PYBIND11_MODULE(gmm, m)
     py::class_<GMMParamD>(m, "GMMParam")
         .def(py::init<>())
         .def_readwrite("KEYPOINTS", &GMMParamD::KEYPOINTS)
+        .def_readwrite("LIMBS", &GMMParamD::LIMBS)
         .def_readwrite("nu", &GMMParamD::nu)
         .def_readwrite("maxIter", &GMMParamD::maxIter)
         .def_readwrite("keypointConfidenceThreshold", &GMMParamD::keypointConfidenceThreshold)
@@ -219,6 +220,7 @@ PYBIND11_MODULE(gmm, m)
             {
                 return py::make_tuple(
                     gmmParam.KEYPOINTS,
+                    gmmParam.LIMBS,
                     gmmParam.nu,
                     gmmParam.maxIter,
                     gmmParam.keypointConfidenceThreshold,
@@ -243,24 +245,25 @@ PYBIND11_MODULE(gmm, m)
                 GMMParamD gmmParam{};
 
                 gmmParam.KEYPOINTS = gmmParamTuple[0].cast<std::vector<int>>();
-                gmmParam.nu = gmmParamTuple[1].cast<double>();
-                gmmParam.maxIter = gmmParamTuple[2].cast<unsigned int>();
-                gmmParam.keypointConfidenceThreshold = gmmParamTuple[3].cast<double>();
-                gmmParam.tol = gmmParamTuple[4].cast<double>();
-                gmmParam.splineDegree = gmmParamTuple[5].cast<double>();
-                gmmParam.splineKnotDelta = gmmParamTuple[6].cast<double>();
-                gmmParam.maxFrameBuffer = gmmParamTuple[7].cast<unsigned int>();
-                gmmParam.autoManageTheta = gmmParamTuple[8].cast<bool>();
-                gmmParam.copyLastThetas = gmmParamTuple[9].cast<bool>();
-                gmmParam.splineSmoothingFactor = gmmParamTuple[10].cast<double>();
-                gmmParam.autoManageHypothesis = gmmParamTuple[11].cast<bool>();
-                gmmParam.numSupportCameras = gmmParamTuple[12].cast<size_t>();
-                gmmParam.notSupportedSinceThreshold = gmmParamTuple[13].cast<size_t>();
-                gmmParam.responsibilityLookback = gmmParamTuple[14].cast<size_t>();
-                gmmParam.responsibilitySupportThreshold = gmmParamTuple[15].cast<double>();
-                gmmParam.totalResponsibilitySupportThreshold = gmmParamTuple[16].cast<double>();
-                gmmParam.dragAlongUnsupportedKeyPoints = gmmParamTuple[17].cast<bool>();
-                gmmParam.minValidKeyPoints = gmmParamTuple[18].cast<int>();
+                gmmParam.LIMBS = gmmParamTuple[1].cast<std::vector<std::pair<int, int>>>();
+                gmmParam.nu = gmmParamTuple[2].cast<double>();
+                gmmParam.maxIter = gmmParamTuple[3].cast<unsigned int>();
+                gmmParam.keypointConfidenceThreshold = gmmParamTuple[4].cast<double>();
+                gmmParam.tol = gmmParamTuple[5].cast<double>();
+                gmmParam.splineDegree = gmmParamTuple[6].cast<double>();
+                gmmParam.splineKnotDelta = gmmParamTuple[7].cast<double>();
+                gmmParam.maxFrameBuffer = gmmParamTuple[8].cast<unsigned int>();
+                gmmParam.autoManageTheta = gmmParamTuple[9].cast<bool>();
+                gmmParam.copyLastThetas = gmmParamTuple[10].cast<bool>();
+                gmmParam.splineSmoothingFactor = gmmParamTuple[11].cast<double>();
+                gmmParam.autoManageHypothesis = gmmParamTuple[12].cast<bool>();
+                gmmParam.numSupportCameras = gmmParamTuple[13].cast<size_t>();
+                gmmParam.notSupportedSinceThreshold = gmmParamTuple[14].cast<size_t>();
+                gmmParam.responsibilityLookback = gmmParamTuple[15].cast<size_t>();
+                gmmParam.responsibilitySupportThreshold = gmmParamTuple[16].cast<double>();
+                gmmParam.totalResponsibilitySupportThreshold = gmmParamTuple[17].cast<double>();
+                gmmParam.dragAlongUnsupportedKeyPoints = gmmParamTuple[18].cast<bool>();
+                gmmParam.minValidKeyPoints = gmmParamTuple[19].cast<int>();
 
                 return gmmParam;
             }));
@@ -297,9 +300,9 @@ PYBIND11_MODULE(gmm, m)
                 lbfgsParam.linesearch = lbfgsParamTuple[6].cast<int>();
                 lbfgsParam.max_linesearch = lbfgsParamTuple[7].cast<int>();
                 lbfgsParam.min_step = lbfgsParamTuple[8].cast<double>();
-                lbfgsParam.max_step = lbfgsParamTuple[6].cast<double>();
-                lbfgsParam.ftol = lbfgsParamTuple[7].cast<double>();
-                lbfgsParam.wolfe = lbfgsParamTuple[8].cast<double>();
+                lbfgsParam.max_step = lbfgsParamTuple[9].cast<double>();
+                lbfgsParam.ftol = lbfgsParamTuple[10].cast<double>();
+                lbfgsParam.wolfe = lbfgsParamTuple[11].cast<double>();
 
                 return lbfgsParam;
             }));

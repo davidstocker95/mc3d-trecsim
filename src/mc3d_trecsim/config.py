@@ -6,7 +6,7 @@ import time
 
 from dataclass_wizard import YAMLWizard
 
-from .enums import KPT_IDXS
+from .enums import KPT_IDXS, LIMB_IDXS, LIMB_KPTS
 
 @dataclass
 class LiveConfig(YAMLWizard):
@@ -65,6 +65,24 @@ class LiveConfig(YAMLWizard):
         KPT_IDXS.RIGHT_FOOT,
         KPT_IDXS.LEFT_FOOT]
     )
+    
+    limbs: list[tuple[int, int]] = field(default_factory=lambda: [
+        [KPT_IDXS.NOSE, KPT_IDXS.RIGHT_SHOULDER],
+        [KPT_IDXS.NOSE, KPT_IDXS.LEFT_SHOULDER],
+        LIMB_KPTS[LIMB_IDXS.SHOULDER_LINE],
+        LIMB_KPTS[LIMB_IDXS.RIGHT_BRACHIUM],
+        LIMB_KPTS[LIMB_IDXS.LEFT_BRACHIUM],
+        LIMB_KPTS[LIMB_IDXS.RIGHT_ANTEBRACHIUM],
+        LIMB_KPTS[LIMB_IDXS.LEFT_ANTEBRACHIUM],
+        LIMB_KPTS[LIMB_IDXS.RIGHT_TORSO],
+        LIMB_KPTS[LIMB_IDXS.LEFT_TORSO],
+        LIMB_KPTS[LIMB_IDXS.WAIST],
+        LIMB_KPTS[LIMB_IDXS.RIGHT_THIGH],
+        LIMB_KPTS[LIMB_IDXS.LEFT_THIGH],
+        LIMB_KPTS[LIMB_IDXS.RIGHT_SHIN],
+        LIMB_KPTS[LIMB_IDXS.LEFT_SHIN]
+    ])
+
     disable_visualiser: bool = False
     show_video_feeds: bool = True
     max_fps: float = 25.0
