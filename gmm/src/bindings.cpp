@@ -5,6 +5,7 @@
 #include "gmm_container.h"
 #include <LBFGS.h>
 #include <string>
+#include <tuple>
 #define PYBIND11_DETAILED_ERROR_MESSAGES
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
@@ -245,7 +246,7 @@ PYBIND11_MODULE(gmm, m)
                 GMMParamD gmmParam{};
 
                 gmmParam.KEYPOINTS = gmmParamTuple[0].cast<std::vector<int>>();
-                gmmParam.LIMBS = gmmParamTuple[1].cast<std::vector<std::pair<int, int>>>();
+                gmmParam.LIMBS = gmmParamTuple[1].cast<std::vector<std::tuple<int, int, double, double>>>();
                 gmmParam.nu = gmmParamTuple[2].cast<double>();
                 gmmParam.maxIter = gmmParamTuple[3].cast<unsigned int>();
                 gmmParam.keypointConfidenceThreshold = gmmParamTuple[4].cast<double>();

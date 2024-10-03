@@ -8,6 +8,33 @@ from dataclass_wizard import YAMLWizard
 
 from .enums import KPT_IDXS, LIMB_IDXS, LIMB_KPTS
 
+
+@dataclass 
+class LimbConfig:
+    expectation: float      # Mean segment length of the limb in percentage of the height
+    std: float              # Standard deviation of the segment length in percentage of the height
+
+    @property
+    def stats(self) -> tuple[float, float]:
+        return self.expectation, self.std
+    
+
+@dataclass
+class LimbsConfig(YAMLWizard):
+    # default values taken from https://exrx.net/Kinesiology/Segments
+    shin: LimbConfig = LimbConfig(25.2, 5.)
+    thigh: LimbConfig = LimbConfig(24.05, 5.)
+    torso: LimbConfig = LimbConfig(29.5, 5.)
+    antebrachium: LimbConfig = LimbConfig(15.85, 3.)
+    brachium: LimbConfig = LimbConfig(17.25, 4.)
+    shoulder_line: LimbConfig = LimbConfig(23., 5.)
+    waist: LimbConfig = LimbConfig(20., 6.)
+    shoulder_to_nose: LimbConfig = LimbConfig(21., 4.5)
+
+
+DEFAULT_LIMB_CONFIG = LimbsConfig()
+
+
 @dataclass
 class LiveConfig(YAMLWizard):
     """The arguments for the live fitting algorithm.
@@ -66,21 +93,21 @@ class LiveConfig(YAMLWizard):
         KPT_IDXS.LEFT_FOOT]
     )
     
-    limbs: list[tuple[int, int]] = field(default_factory=lambda: [
-        [KPT_IDXS.NOSE, KPT_IDXS.RIGHT_SHOULDER],
-        [KPT_IDXS.NOSE, KPT_IDXS.LEFT_SHOULDER],
-        LIMB_KPTS[LIMB_IDXS.SHOULDER_LINE],
-        LIMB_KPTS[LIMB_IDXS.RIGHT_BRACHIUM],
-        LIMB_KPTS[LIMB_IDXS.LEFT_BRACHIUM],
-        LIMB_KPTS[LIMB_IDXS.RIGHT_ANTEBRACHIUM],
-        LIMB_KPTS[LIMB_IDXS.LEFT_ANTEBRACHIUM],
-        LIMB_KPTS[LIMB_IDXS.RIGHT_TORSO],
-        LIMB_KPTS[LIMB_IDXS.LEFT_TORSO],
-        LIMB_KPTS[LIMB_IDXS.WAIST],
-        LIMB_KPTS[LIMB_IDXS.RIGHT_THIGH],
-        LIMB_KPTS[LIMB_IDXS.LEFT_THIGH],
-        LIMB_KPTS[LIMB_IDXS.RIGHT_SHIN],
-        LIMB_KPTS[LIMB_IDXS.LEFT_SHIN]
+    limbs: list[tuple[int, int, float, float]] = field(default_factory=lambda: [
+        (KPT_IDXS.NOSE, KPT_IDXS.RIGHT_SHOULDER, *DEFAULT_LIMB_CONFIG.shoulder_to_nose.stats),
+        (KPT_IDXS.NOSE, KPT_IDXS.LEFT_SHOULDER, *DEFAULT_LIMB_CONFIG.shoulder_to_nose.stats),
+        (*LIMB_KPTS[LIMB_IDXS.SHOULDER_LINE], *DEFAULT_LIMB_CONFIG.shoulder_line.stats),
+        (*LIMB_KPTS[LIMB_IDXS.RIGHT_BRACHIUM], *DEFAULT_LIMB_CONFIG.brachium.stats),
+        (*LIMB_KPTS[LIMB_IDXS.LEFT_BRACHIUM], *DEFAULT_LIMB_CONFIG.brachium.stats),
+        (*LIMB_KPTS[LIMB_IDXS.RIGHT_ANTEBRACHIUM], *DEFAULT_LIMB_CONFIG.antebrachium.stats),
+        (*LIMB_KPTS[LIMB_IDXS.LEFT_ANTEBRACHIUM], *DEFAULT_LIMB_CONFIG.antebrachium.stats),
+        (*LIMB_KPTS[LIMB_IDXS.RIGHT_TORSO], *DEFAULT_LIMB_CONFIG.torso.stats),
+        (*LIMB_KPTS[LIMB_IDXS.LEFT_TORSO], *DEFAULT_LIMB_CONFIG.torso.stats),
+        (*LIMB_KPTS[LIMB_IDXS.WAIST], *DEFAULT_LIMB_CONFIG.waist.stats),
+        (*LIMB_KPTS[LIMB_IDXS.RIGHT_THIGH], *DEFAULT_LIMB_CONFIG.thigh.stats),
+        (*LIMB_KPTS[LIMB_IDXS.LEFT_THIGH], *DEFAULT_LIMB_CONFIG.thigh.stats),
+        (*LIMB_KPTS[LIMB_IDXS.RIGHT_SHIN], *DEFAULT_LIMB_CONFIG.shin.stats),
+        (*LIMB_KPTS[LIMB_IDXS.LEFT_SHIN], *DEFAULT_LIMB_CONFIG.shin.stats)
     ])
 
     disable_visualiser: bool = False
