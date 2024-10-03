@@ -176,6 +176,7 @@ def create_gmm_param(config: LiveConfig) -> GMMParam:
     gmm_param.tol = config.tol
     gmm_param.KEYPOINTS = config.keypoints
     gmm_param.LIMBS = config.limbs
+    gmm_param.limbRegulationFactor = config.limb_regulation_factor
     gmm_param.maxIter = config.max_iter
     gmm_param.keypointConfidenceThreshold = config.keypoint_confidence_threshold
     gmm_param.splineKnotDelta = config.spline_knot_delta

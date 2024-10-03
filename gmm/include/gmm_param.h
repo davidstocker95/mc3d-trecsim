@@ -16,6 +16,7 @@ namespace MC3D_TRECSIM
     public:
         std::vector<int> KEYPOINTS;
         std::vector<std::tuple<int, int, double, double>> LIMBS;
+        Scalar limbRegulationFactor;
         Scalar nu;
         unsigned int maxIter;
         Scalar keypointConfidenceThreshold;
@@ -38,6 +39,7 @@ namespace MC3D_TRECSIM
 
         GMMParam() : KEYPOINTS(std::vector<int>()),
                      LIMBS(std::vector<std::tuple<int, int, double, double>>()),
+                     limbRegulationFactor(0.0),
                      nu(1.0),
                      maxIter(100),
                      keypointConfidenceThreshold(0.5),
@@ -98,6 +100,7 @@ namespace MC3D_TRECSIM
             }
 
             // Printing other members
+            os << "\t" << "limbRegulationFactor: " << obj.limbRegulationFactor << std::endl;
             os << "\t" << "nu: " << obj.nu << std::endl;
             os << "\t" << "maxIter: " << obj.maxIter << std::endl;
             os << "\t" << "keypointConfidenceThreshold: " << obj.keypointConfidenceThreshold << std::endl;

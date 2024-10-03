@@ -109,6 +109,7 @@ class LiveConfig(YAMLWizard):
         (*LIMB_KPTS[LIMB_IDXS.RIGHT_SHIN], *DEFAULT_LIMB_CONFIG.shin.stats),
         (*LIMB_KPTS[LIMB_IDXS.LEFT_SHIN], *DEFAULT_LIMB_CONFIG.shin.stats)
     ])
+    limb_regulation_factor: 0.1
 
     disable_visualiser: bool = False
     show_video_feeds: bool = True

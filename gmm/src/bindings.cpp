@@ -196,6 +196,7 @@ PYBIND11_MODULE(gmm, m)
         .def(py::init<>())
         .def_readwrite("KEYPOINTS", &GMMParamD::KEYPOINTS)
         .def_readwrite("LIMBS", &GMMParamD::LIMBS)
+        .def_readwrite("limbRegulationFactor", &GMMParamD::limbRegulationFactor)
         .def_readwrite("nu", &GMMParamD::nu)
         .def_readwrite("maxIter", &GMMParamD::maxIter)
         .def_readwrite("keypointConfidenceThreshold", &GMMParamD::keypointConfidenceThreshold)
@@ -222,6 +223,7 @@ PYBIND11_MODULE(gmm, m)
                 return py::make_tuple(
                     gmmParam.KEYPOINTS,
                     gmmParam.LIMBS,
+                    gmmParam.limbRegulationFactor,
                     gmmParam.nu,
                     gmmParam.maxIter,
                     gmmParam.keypointConfidenceThreshold,
@@ -247,24 +249,25 @@ PYBIND11_MODULE(gmm, m)
 
                 gmmParam.KEYPOINTS = gmmParamTuple[0].cast<std::vector<int>>();
                 gmmParam.LIMBS = gmmParamTuple[1].cast<std::vector<std::tuple<int, int, double, double>>>();
-                gmmParam.nu = gmmParamTuple[2].cast<double>();
-                gmmParam.maxIter = gmmParamTuple[3].cast<unsigned int>();
-                gmmParam.keypointConfidenceThreshold = gmmParamTuple[4].cast<double>();
-                gmmParam.tol = gmmParamTuple[5].cast<double>();
-                gmmParam.splineDegree = gmmParamTuple[6].cast<double>();
-                gmmParam.splineKnotDelta = gmmParamTuple[7].cast<double>();
-                gmmParam.maxFrameBuffer = gmmParamTuple[8].cast<unsigned int>();
-                gmmParam.autoManageTheta = gmmParamTuple[9].cast<bool>();
-                gmmParam.copyLastThetas = gmmParamTuple[10].cast<bool>();
-                gmmParam.splineSmoothingFactor = gmmParamTuple[11].cast<double>();
-                gmmParam.autoManageHypothesis = gmmParamTuple[12].cast<bool>();
-                gmmParam.numSupportCameras = gmmParamTuple[13].cast<size_t>();
-                gmmParam.notSupportedSinceThreshold = gmmParamTuple[14].cast<size_t>();
-                gmmParam.responsibilityLookback = gmmParamTuple[15].cast<size_t>();
-                gmmParam.responsibilitySupportThreshold = gmmParamTuple[16].cast<double>();
-                gmmParam.totalResponsibilitySupportThreshold = gmmParamTuple[17].cast<double>();
-                gmmParam.dragAlongUnsupportedKeyPoints = gmmParamTuple[18].cast<bool>();
-                gmmParam.minValidKeyPoints = gmmParamTuple[19].cast<int>();
+                gmmParam.limbRegulationFactor = gmmParamTuple[2].cast<double>();
+                gmmParam.nu = gmmParamTuple[3].cast<double>();
+                gmmParam.maxIter = gmmParamTuple[4].cast<unsigned int>();
+                gmmParam.keypointConfidenceThreshold = gmmParamTuple[5].cast<double>();
+                gmmParam.tol = gmmParamTuple[6].cast<double>();
+                gmmParam.splineDegree = gmmParamTuple[7].cast<double>();
+                gmmParam.splineKnotDelta = gmmParamTuple[8].cast<double>();
+                gmmParam.maxFrameBuffer = gmmParamTuple[9].cast<unsigned int>();
+                gmmParam.autoManageTheta = gmmParamTuple[10].cast<bool>();
+                gmmParam.copyLastThetas = gmmParamTuple[11].cast<bool>();
+                gmmParam.splineSmoothingFactor = gmmParamTuple[12].cast<double>();
+                gmmParam.autoManageHypothesis = gmmParamTuple[13].cast<bool>();
+                gmmParam.numSupportCameras = gmmParamTuple[14].cast<size_t>();
+                gmmParam.notSupportedSinceThreshold = gmmParamTuple[15].cast<size_t>();
+                gmmParam.responsibilityLookback = gmmParamTuple[16].cast<size_t>();
+                gmmParam.responsibilitySupportThreshold = gmmParamTuple[17].cast<double>();
+                gmmParam.totalResponsibilitySupportThreshold = gmmParamTuple[18].cast<double>();
+                gmmParam.dragAlongUnsupportedKeyPoints = gmmParamTuple[19].cast<bool>();
+                gmmParam.minValidKeyPoints = gmmParamTuple[20].cast<int>();
 
                 return gmmParam;
             }));
