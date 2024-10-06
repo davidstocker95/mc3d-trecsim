@@ -191,6 +191,7 @@ def runner(args: LiveArgs):
         ziped = zip(frames, all_kpts, timestamps, list(enumerate(cameras)))
 
         for frame, kpts, timestamp, (camera_index, camera) in ziped:
+            tracker_indices = [j for j, person in enumerate(kpts) if np.any(kpts)]
             if not config.undistort_images:
                 for person in kpts:
                     person[:, :2] = cv2.undistortImagePoints(
@@ -198,7 +199,7 @@ def runner(args: LiveArgs):
                         .reshape(person[:, :2].shape)
 
             cpp_frame: Frame = Frame(
-                camera_index, kpts, timestamp - start_timestamp, timestamp)
+                camera_index, kpts, tracker_indices, timestamp - start_timestamp, timestamp)
             gmm.addFrame(cpp_frame)
         post_inference_end = time.perf_counter()
 

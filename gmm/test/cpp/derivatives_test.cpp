@@ -80,10 +80,10 @@ TEST(Derivatives, WholeModelFit)
 
     GMMContainer<double> gmmContainer = GMMContainer<double>(keypoint, J, cameras, nu, designMatrix);
     gmmContainer.parameters.pi = pi;
-    gmmContainer.addKeypoint(Vector<double>::Random(2), 0.5, 0, 0);
-    gmmContainer.addKeypoint(Vector<double>::Random(2), 0.6, 1, 1);
-    gmmContainer.addKeypoint(Vector<double>::Random(2), 1.1, 0, 2);
-    gmmContainer.addKeypoint(Vector<double>::Random(2), 1.3, 1, 3);
+    gmmContainer.addKeypoint(Vector<double>::Random(2), 0.5, 0, 0, 0);
+    gmmContainer.addKeypoint(Vector<double>::Random(2), 0.6, 1, 1, 1);
+    gmmContainer.addKeypoint(Vector<double>::Random(2), 1.1, 0, 0, 2);
+    gmmContainer.addKeypoint(Vector<double>::Random(2), 1.3, 1, 1, 3);
 
     MC3DModel<double> mc3dModel = MC3DModel<double>(bspline, responsibilities, gmmContainer, hGrads, cameras);
 
@@ -151,10 +151,10 @@ TEST(Derivatives, PointsOnlyModelFit)
 
     GMMContainer<double> gmmContainer = GMMContainer<double>(keypoint, J, cameras, nu, designMatrix);
     gmmContainer.parameters.pi = pi;
-    gmmContainer.addKeypoint(Vector<double>::Random(2), 0.5, 0, 0);
-    gmmContainer.addKeypoint(Vector<double>::Random(2), 0.6, 1, 1);
-    gmmContainer.addKeypoint(Vector<double>::Random(2), 1.1, 0, 2);
-    gmmContainer.addKeypoint(Vector<double>::Random(2), 1.3, 1, 3);
+    gmmContainer.addKeypoint(Vector<double>::Random(2), 0.5, 0, 0, 0);
+    gmmContainer.addKeypoint(Vector<double>::Random(2), 0.6, 0, 1, 1);
+    gmmContainer.addKeypoint(Vector<double>::Random(2), 1.1, 0, 0, 2);
+    gmmContainer.addKeypoint(Vector<double>::Random(2), 1.3, 0, 1, 3);
 
     MC3DModel<double> mc3dModel = MC3DModel<double>(bspline, responsibilities, gmmContainer, hGrads, cameras);
 

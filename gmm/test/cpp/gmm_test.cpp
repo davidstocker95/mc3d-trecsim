@@ -23,7 +23,7 @@ TEST(GMM, Init)
     unsigned int J = 1;
 
     std::vector<RowMatrix<double>> frame1Kpts = { kptsFrame1Person0 };
-    std::vector<Frame<double>> frames = { Frame<double>(0, frame1Kpts, 1726.080322265625, 1701415521134.211) };
+    std::vector<Frame<double>> frames = { Frame<double>(0, frame1Kpts, { 0 }, 1726.080322265625, 1701415521134.211) };
     Vector<double> splineKnots = Vector<double>::LinSpaced(3, 1725.5244140625, 1814.42578125);
     std::vector<int> KEYPOINTS = { 0, 5, 6 };
     std::map<int, ColMatrix<double>> initialThetas;

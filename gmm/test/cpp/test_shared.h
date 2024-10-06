@@ -295,7 +295,8 @@ std::vector<Frame<double>> initAllFrames()
     {
         size_t cameraIndex = (allFrameCameraIds.at(i).compare("camera_0") == 0) ? 0 : 1;
         std::vector<RowMatrix<double>> frameKpts = {allFrameKpts.at(i)};
-        Frame<double> frame(cameraIndex, frameKpts, allFrameTimes.at(i), allFrameOrigTimestamps.at(i));
+        std::vector<unsigned int> trackerIndices = {0};  // Only one person per frame
+        Frame<double> frame(cameraIndex, frameKpts, trackerIndices, allFrameTimes.at(i), allFrameOrigTimestamps.at(i));
         frames.push_back(frame);
     }
 
@@ -316,7 +317,8 @@ std::vector<Frame<double>> initAllFramesDouble(double dist = 100)
         alteredFrameKpts.col(1) += distVector;
 
         std::vector<RowMatrix<double>> frameKpts = {allFrameKpts.at(i), alteredFrameKpts};
-        Frame<double> frame(cameraIndex, frameKpts, allFrameTimes.at(i), allFrameOrigTimestamps.at(i));
+        std::vector<unsigned int> trackerIndices = {0, 1};  // Two different keypoint sets for the same frame
+        Frame<double> frame(cameraIndex, frameKpts, trackerIndices, allFrameTimes.at(i), allFrameOrigTimestamps.at(i));
         frames.push_back(frame);
     }
 

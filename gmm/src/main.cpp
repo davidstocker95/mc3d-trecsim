@@ -60,16 +60,20 @@ bool parseJsonFile(const std::string &filename, std::vector<MC3D_TRECSIM::Frame<
             const std::vector<std::vector<double>> jsonKpts = item.value()["kpts"].template get<std::vector<std::vector<double>>>();
 
             std::vector<MC3D_TRECSIM::RowMatrix<double>> kpts;
+            std::vector<unsigned int> trackerIndices;
 
-            for (const std::vector<double> &jsonPerson : jsonKpts)
+            for (size_t j = 0; j < jsonKpts.size(); ++j)
             {
+                const std::vector<double> &jsonPerson = jsonKpts[j];
+
                 MC3D_TRECSIM::RowMatrix<double> person(rows, cols);
                 fillupEigenMatrix(jsonPerson, person);
 
                 kpts.push_back(person);
+                trackerIndices.push_back(j);
             }
 
-            frames.push_back(MC3D_TRECSIM::Frame<double>(cameraIndex, kpts, time, origTimestamp));
+            frames.push_back(MC3D_TRECSIM::Frame<double>(cameraIndex, kpts, trackerIndices, time, origTimestamp));
         }
 
         for (const auto &item : j["cameras"].items())

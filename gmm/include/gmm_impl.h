@@ -526,8 +526,10 @@ namespace MC3D_TRECSIM
 
         if (frame.kpts.size() > 0)
         {
-            for (RowMatrix<Scalar> person : frame.kpts)
-            {
+            for (int j = 0; j < frame.kpts.size(); ++j)
+            {   
+                RowMatrix<Scalar> person = frame.kpts[j];
+                unsigned int trackerIndex = frame.trackerIndices[j];
                 for (auto KEYPOINT : gmmParam.KEYPOINTS)
                 {
                     if (person(KEYPOINT, 2) >= gmmParam.keypointConfidenceThreshold)
@@ -536,7 +538,7 @@ namespace MC3D_TRECSIM
                             std::cout << "Keypoint to Add: " << person.row(KEYPOINT) << std::endl;
                         #endif
 
-                        gmmContainers[KEYPOINT].addKeypoint(person.row(KEYPOINT).head(2), frame.time, frame.cameraIndex, frames.size() - 1);
+                        gmmContainers[KEYPOINT].addKeypoint(person.row(KEYPOINT).head(2), frame.time, trackerIndex, frame.cameraIndex, frames.size() - 1);
                     }
                 }
             }

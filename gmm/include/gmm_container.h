@@ -36,6 +36,7 @@ namespace MC3D_TRECSIM
     {
         Vector<Scalar> keypoint;
         Scalar time;
+        unsigned int trackerIndex;
         size_t cameraIndex;
         unsigned int frameIndex;
     };
@@ -73,7 +74,7 @@ namespace MC3D_TRECSIM
 
         GMMContainer(int KEYPOINT = 0, const int &J = 0, std::vector<Camera<Scalar>> cameras = std::vector<Camera<Scalar>>(), Scalar nu = 1.0, const RowMatrix<Scalar> &designMatrix = RowMatrix<Scalar>::Zero(0, 0));
 
-        inline void addKeypoint(Vector<Scalar> keypoint, Scalar time, size_t cameraIndex, unsigned int frameIndex);
+        inline void addKeypoint(Vector<Scalar> keypoint, Scalar time, unsigned int trackerIndex, size_t cameraIndex, unsigned int frameIndex);
 
         void dropFrame();
 

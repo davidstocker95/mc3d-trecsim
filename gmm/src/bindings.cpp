@@ -168,26 +168,28 @@ PYBIND11_MODULE(gmm, m)
             }));
 
     py::class_<FrameD>(m, "Frame")
-        .def(py::init<size_t, std::vector<RowMatrixD> &, double, double>(),
+        .def(py::init<size_t, std::vector<RowMatrixD> &, std::vector<unsigned int>, double, double>(),
              py::arg("cameraIndex"),
              py::arg("kpts"),
+             py::arg("trackerIndices"),
              py::arg("time"),
              py::arg("origTimestamp"))
         .def_readwrite("cameraIndex", &FrameD::cameraIndex)
         .def_readwrite("kpts", &FrameD::kpts)
+        .def_readwrite("trackerIndices", &FrameD::trackerIndices)
         .def_readwrite("time", &FrameD::time)
         .def_readwrite("origTimestamp", &FrameD::origTimestamp)
         .def(py::pickle(
             [](const FrameD &frame)
             {
-                return py::make_tuple(frame.cameraIndex, frame.kpts, frame.time, frame.origTimestamp);
+                return py::make_tuple(frame.cameraIndex, frame.kpts, frame.trackerIndices, frame.time, frame.origTimestamp);
             },
             [](py::tuple frameTuple)
             {
                 size_t cameraIndex = frameTuple[0].cast<size_t>();
                 std::vector<RowMatrixD> kpts = frameTuple[1].cast<std::vector<RowMatrixD>>();
-
-                FrameD frame = FrameD(cameraIndex, kpts, frameTuple[2].cast<double>(), frameTuple[3].cast<double>());
+                std::vector<unsigned int> trackerIndices = frameTuple[2].cast<std::vector<unsigned int>>();
+                FrameD frame = FrameD(cameraIndex, kpts, trackerIndices, frameTuple[3].cast<double>(), frameTuple[4].cast<double>());
 
                 return frame;
             }));

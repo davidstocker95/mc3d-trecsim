@@ -41,9 +41,9 @@ namespace MC3D_TRECSIM
     { }
 
     template <typename Scalar>
-    inline void GMMContainer<Scalar>::addKeypoint(Vector<Scalar> keypoint, Scalar time, size_t cameraIndex, unsigned int frameIndex)
+    inline void GMMContainer<Scalar>::addKeypoint(Vector<Scalar> keypoint, Scalar time, unsigned int trackerIndex, size_t cameraIndex, unsigned int frameIndex)
     {
-        keyPoints.push_back({keypoint, time, cameraIndex, frameIndex});
+        keyPoints.push_back({keypoint, time, trackerIndex, cameraIndex, frameIndex});
     }
 
     template <typename Scalar>
