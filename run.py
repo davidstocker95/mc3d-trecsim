@@ -13,7 +13,7 @@ import numpy as np
 from mc3d_trecsim.gmm import GMM, Camera, Frame, GMMParam, LBFGSParam
 from mc3d_trecsim.args import LiveArgs
 from mc3d_trecsim.model import PoseEstimator
-from mc3d_trecsim.plotting import paint_skeleton_on_image
+from mc3d_trecsim.plotting import paint_skeleton_on_image, paint_bbox_on_image
 from mc3d_trecsim.skeleton_calculator import SkeletonCalculator
 from mc3d_trecsim.parallel_qt_visualizer import ParallelQtVisualizer
 from mc3d_trecsim.config import LiveConfig
@@ -25,6 +25,7 @@ from mc3d_trecsim.run_helpers import create_cameras, \
     create_video_streamers, \
     signal_handler, \
     cleanup
+from mc3d_trecsim.tracker import MultiCameraTracker
 
 
 def runner(args: LiveArgs):
@@ -43,6 +44,8 @@ def runner(args: LiveArgs):
     pose_estimator: PoseEstimator = create_pose_estimator(config)
     pose_estimator.predict(
         np.zeros((1, cameras[0].height, cameras[0].width, 3)))
+
+    tracker: MultiCameraTracker = MultiCameraTracker(nr_cameras=len(cameras))
 
     gmm_param: GMMParam = create_gmm_param(config)
 
@@ -174,16 +177,19 @@ def runner(args: LiveArgs):
             timestamps.append((time.perf_counter() - pause_delay)*1000)
 
         inference_start = time.perf_counter()
-        all_kpts = pose_estimator.predict(frames)
+        all_kpts, all_bboxes = pose_estimator.predict(frames)
         inference_end = time.perf_counter()
+        all_tracker_ids =tracker.update(all_bboxes)
 
         if start_timestamp == 0.0:
             start_timestamp = timestamps[0]
 
         if config.show_video_feeds:
-            for frame, camera, kpts in zip(frames, cameras, all_kpts):
-                for person in kpts:
-                    paint_skeleton_on_image(frame, person, plot_sides=config.plot_sides)
+            for frame, camera, kpts, bboxes, tracker_ids in zip(frames, cameras, all_kpts, all_bboxes, all_tracker_ids):
+                for person_kpts, person_bbox, tracker_id in zip(kpts, bboxes, tracker_ids):
+                    paint_skeleton_on_image(frame, person_kpts, plot_sides=config.plot_sides)
+                    paint_bbox_on_image(frame, person_bbox, tracker_id)
+
                 cv2.imshow(camera.id, frame[::2, ::2])
             # cv2.startWindowThread()
 
