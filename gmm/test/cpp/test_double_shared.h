@@ -476,14 +476,16 @@ std::vector<Frame<double>> initAllDoubleFrames()
     {
         size_t cameraIndex = (allDoubleFrameCameraIds.at(i).compare("camera_0") == 0) ? 0 : 1;
         std::vector<RowMatrix<double>> frameKpts = {allDoubleFrameKptsPerson0.at(i), allDoubleFrameKptsPerson1.at(i)};
-        Frame<double> frame(cameraIndex, frameKpts, allDoubleFrameTimes.at(i), allFrameOrigTimestamps.at(i));
+        std::vector<unsigned int> trackerIndices = {0, 1};  // Person 0 and Person 1 for the first three frames
+        Frame<double> frame(cameraIndex, frameKpts, trackerIndices, allDoubleFrameTimes.at(i), allFrameOrigTimestamps.at(i));
         frames.push_back(frame);
     }
 
     // Fourth frame, as frame 3 does not have a second person registered
     size_t cameraIndex = (allDoubleFrameCameraIds.at(3).compare("camera_0") == 0) ? 0 : 1;
     std::vector<RowMatrix<double>> frameKpts = {allDoubleFrameKptsPerson0.at(3)};
-    Frame<double> frame(cameraIndex, frameKpts, allDoubleFrameTimes.at(3), allFrameOrigTimestamps.at(3));
+    std::vector<unsigned int> trackerIndices = {0};  // Only Person 0 in this frame
+    Frame<double> frame(cameraIndex, frameKpts, trackerIndices, allDoubleFrameTimes.at(3), allFrameOrigTimestamps.at(3));
     frames.push_back(frame);
 
     // Rest of frames
@@ -491,7 +493,8 @@ std::vector<Frame<double>> initAllDoubleFrames()
     {
         size_t cameraIndex = (allDoubleFrameCameraIds.at(i).compare("camera_0") == 0) ? 0 : 1;
         std::vector<RowMatrix<double>> frameKpts = {allDoubleFrameKptsPerson0.at(i), allDoubleFrameKptsPerson1.at(i - 1)}; // allDoubleFrameKptsPerson1 misses 1 frame
-        Frame<double> frame(cameraIndex, frameKpts, allDoubleFrameTimes.at(i), allFrameOrigTimestamps.at(i));
+        std::vector<unsigned int> trackerIndices = {0, 1};  // Assuming Person 0 and Person 1 are tracked in these frames as well
+        Frame<double> frame(cameraIndex, frameKpts, trackerIndices, allDoubleFrameTimes.at(i), allFrameOrigTimestamps.at(i));
         frames.push_back(frame);
     }
 

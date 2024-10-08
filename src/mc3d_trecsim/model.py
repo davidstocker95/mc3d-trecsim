@@ -80,8 +80,8 @@ class YOLOv7(PoseEstimator):
         new_shape = self.new_shape if new_shape is None else new_shape
         stride = self.stride if stride is None else stride
         
-        # Resize and pad image while meeting stride-multiple constraints
-        lb_images, self.ratios, self.dwhs = self.letterbox(images, new_shape, stride=stride, auto=True)
+        # Resize and pad images
+        lb_images, self.ratios, self.pads = self.letterbox(images, new_shape, stride=stride, auto=True)
         lb_images = np.array([transforms.ToTensor()(lb_image).numpy() for lb_image in lb_images])
         
         self.lb_images = torch.from_numpy(lb_images)
@@ -91,27 +91,56 @@ class YOLOv7(PoseEstimator):
 
         with torch.no_grad():
             self.output, _ = self.model(self.lb_images)
-            self.output_tensor = non_max_suppression_kpt(self.output, 0.25, 0.65, nc=self.model.yaml['nc'], nkpt=self.model.yaml['nkpt'], kpt_label=True) # [batch_id, class_id, x, y, w, h, conf]
+            self.output_tensor = non_max_suppression_kpt(
+                self.output, 0.25, 0.65, 
+                nc=self.model.yaml['nc'], nkpt=self.model.yaml['nkpt'], kpt_label=True
+            )
             self.lb_keypoints = output_to_keypoint(self.output_tensor)
 
         self.recalculated_keypoints = [[] for _ in range(len(images))]
-        
+        bounding_boxes = [[] for _ in range(len(images))]
+
         for keypoints in self.lb_keypoints:
             batch_id = int(keypoints[0])
             recalculated_keypoints = keypoints[7:].reshape((17, 3))
-            recalculated_keypoints[:,0] -= self.dwhs[batch_id][0]
-            recalculated_keypoints[:,1] -= self.dwhs[batch_id][1]
-            recalculated_keypoints[:,0] /= self.ratios[batch_id][0]
-            recalculated_keypoints[:,1] /= self.ratios[batch_id][1]
+            
+            # Adjust keypoints by removing padding and scaling back to original size
+            recalculated_keypoints[:, 0] -= self.pads[batch_id][0]
+            recalculated_keypoints[:, 1] -= self.pads[batch_id][1]
+            recalculated_keypoints[:, 0] /= self.ratios[batch_id][0]
+            recalculated_keypoints[:, 1] /= self.ratios[batch_id][1]
             self.recalculated_keypoints[batch_id].append(recalculated_keypoints)
-        
-        return self.recalculated_keypoints
+
+            # Extract bounding box coordinates and confidence
+            cx, cy, w, h, conf = keypoints[2], keypoints[3], keypoints[4], keypoints[5], keypoints[6]
+            
+            # Adjust bounding box coordinates
+            cx -= self.pads[batch_id][0]
+            cy -= self.pads[batch_id][1]
+            x1 = cx - w/2
+            y1 = cy - h/2
+            x2 = cx + w/2
+            y2 = cy + h/2
+
+            # Scale coordinates back to original image size
+            x1 /= self.ratios[batch_id][0]
+            y1 /= self.ratios[batch_id][1]
+            x2 /= self.ratios[batch_id][0]
+            y2 /= self.ratios[batch_id][1]
+
+            # Append the bounding box to the corresponding list
+            bounding_boxes[batch_id].append([x1, y1, x2, y2, conf])
+
+        bounding_boxes = [np.array(boxes, dtype=np.float32) for boxes in bounding_boxes]
+
+        return self.recalculated_keypoints, bounding_boxes
+
     
     def letterbox(self, images: list[np.ndarray] | np.ndarray, new_shape=(640, 640), color=(114, 114, 114), auto=True, scaleFill=False, scaleup=True, stride=32) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
         # Resize and pad image while meeting stride-multiple constraints
         new_imgs = []
         ratios = []
-        dwhs = []
+        pads = []
         
         for image in images:
             shape = image.shape[:2]  # current shape [height, width]
@@ -120,31 +149,35 @@ class YOLOv7(PoseEstimator):
 
             # Scale ratio (new / old)
             r = min(new_shape[0] / shape[0], new_shape[1] / shape[1])
-            if not scaleup:  # only scale down, do not scale up (for better test mAP)
+            if not scaleup:  # only scale down, do not scale up
                 r = min(r, 1.0)
 
-            # Compute padding
-            ratio = [r, r]  # width, height ratios
+            # Compute new padded shape
             new_unpad = int(round(shape[1] * r)), int(round(shape[0] * r))
-            dw, dh = new_shape[1] - new_unpad[0], new_shape[0] - new_unpad[1]  # wh padding
+            dw, dh = new_shape[1] - new_unpad[0], new_shape[0] - new_unpad[1]  # width, height padding
+
             if auto:  # minimum rectangle
                 dw, dh = np.mod(dw, stride), np.mod(dh, stride)  # wh padding
-            elif scaleFill:  # stretch
+
+            if scaleFill:  # stretch
                 dw, dh = 0.0, 0.0
                 new_unpad = (new_shape[1], new_shape[0])
-                ratio = [new_shape[1] / shape[1], new_shape[0] / shape[0]]  # width, height ratios
+                r = new_shape[1] / shape[1], new_shape[0] / shape[0]  # width, height ratios
 
-            dw /= 2  # divide padding into 2 sides
+            dw /= 2  # divide padding into two sides
             dh /= 2
 
-            if shape[::-1] != new_unpad:  # resize
+            # Resize image
+            if shape[::-1] != new_unpad:
                 image = cv2.resize(image, new_unpad, interpolation=cv2.INTER_LINEAR)
             top, bottom = int(round(dh - 0.1)), int(round(dh + 0.1))
             left, right = int(round(dw - 0.1)), int(round(dw + 0.1))
             new_img = cv2.copyMakeBorder(image, top, bottom, left, right, cv2.BORDER_CONSTANT, value=color)
             
             new_imgs.append(new_img)
-            ratios.append(ratio)
-            dwhs.append([dw, dh])
+            ratios.append([r, r])
+            pads.append([left, top])
 
-        return np.array(new_imgs), np.array(ratios), np.array(dwhs)
+        return np.array(new_imgs), np.array(ratios), np.array(pads)
+
+

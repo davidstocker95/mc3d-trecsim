@@ -175,12 +175,15 @@ def create_gmm_param(config: LiveConfig) -> GMMParam:
     gmm_param: GMMParam = GMMParam()
     gmm_param.tol = config.tol
     gmm_param.KEYPOINTS = config.keypoints
+    gmm_param.LIMBS = config.limbs
+    gmm_param.limbRegulationFactor = config.limb_regulation_factor
     gmm_param.maxIter = config.max_iter
     gmm_param.keypointConfidenceThreshold = config.keypoint_confidence_threshold
     gmm_param.splineKnotDelta = config.spline_knot_delta
     gmm_param.maxFrameBuffer = config.max_frame_buffer
     gmm_param.splineDegree = config.spline_degree
     gmm_param.nu = config.nu
+    gmm_param.trackingIdBiasWeight = config.tracking_id_bias_weight
     gmm_param.autoManageTheta = config.auto_manage_theta
     gmm_param.autoManageHypothesis = config.auto_manage_hypothesis
     gmm_param.splineSmoothingFactor = config.spline_smoothing_factor
@@ -191,7 +194,7 @@ def create_gmm_param(config: LiveConfig) -> GMMParam:
     gmm_param.dragAlongUnsupportedKeyPoints = config.drag_along_unsupported_key_points
     gmm_param.numSupportCameras = config.num_support_cameras
     gmm_param.minValidKeyPoints = config.min_valid_key_points
-
+    
     return gmm_param
 
 

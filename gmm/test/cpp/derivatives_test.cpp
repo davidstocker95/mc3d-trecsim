@@ -78,12 +78,12 @@ TEST(Derivatives, WholeModelFit)
     double nu = 1e-2;
     RowMatrix<double> thetaLimiter = RowMatrix<double>::Ones(numBasis, J * 3) * 2;
 
-    GMMContainer<double> gmmContainer = GMMContainer<double>(keypoint, J, cameras, nu, designMatrix);
+    GMMContainer<double> gmmContainer = GMMContainer<double>(keypoint, J, cameras, nu, 0.0, designMatrix);
     gmmContainer.parameters.pi = pi;
-    gmmContainer.addKeypoint(Vector<double>::Random(2), 0.5, 0, 0);
-    gmmContainer.addKeypoint(Vector<double>::Random(2), 0.6, 1, 1);
-    gmmContainer.addKeypoint(Vector<double>::Random(2), 1.1, 0, 2);
-    gmmContainer.addKeypoint(Vector<double>::Random(2), 1.3, 1, 3);
+    gmmContainer.addKeypoint(Vector<double>::Random(2), 0.5, 0, 0, 0);
+    gmmContainer.addKeypoint(Vector<double>::Random(2), 0.6, 1, 1, 1);
+    gmmContainer.addKeypoint(Vector<double>::Random(2), 1.1, 0, 0, 2);
+    gmmContainer.addKeypoint(Vector<double>::Random(2), 1.3, 1, 1, 3);
 
     MC3DModel<double> mc3dModel = MC3DModel<double>(bspline, responsibilities, gmmContainer, hGrads, cameras);
 
@@ -149,12 +149,12 @@ TEST(Derivatives, PointsOnlyModelFit)
     double nu = 1e-2;
     RowMatrix<double> thetaLimiter = RowMatrix<double>::Ones(numBasis, J * 3) * 2;
 
-    GMMContainer<double> gmmContainer = GMMContainer<double>(keypoint, J, cameras, nu, designMatrix);
+    GMMContainer<double> gmmContainer = GMMContainer<double>(keypoint, J, cameras, nu, 0.0, designMatrix);
     gmmContainer.parameters.pi = pi;
-    gmmContainer.addKeypoint(Vector<double>::Random(2), 0.5, 0, 0);
-    gmmContainer.addKeypoint(Vector<double>::Random(2), 0.6, 1, 1);
-    gmmContainer.addKeypoint(Vector<double>::Random(2), 1.1, 0, 2);
-    gmmContainer.addKeypoint(Vector<double>::Random(2), 1.3, 1, 3);
+    gmmContainer.addKeypoint(Vector<double>::Random(2), 0.5, 0, 0, 0);
+    gmmContainer.addKeypoint(Vector<double>::Random(2), 0.6, 0, 1, 1);
+    gmmContainer.addKeypoint(Vector<double>::Random(2), 1.1, 0, 0, 2);
+    gmmContainer.addKeypoint(Vector<double>::Random(2), 1.3, 0, 1, 3);
 
     MC3DModel<double> mc3dModel = MC3DModel<double>(bspline, responsibilities, gmmContainer, hGrads, cameras);
 
@@ -218,7 +218,7 @@ TEST(Derivatives, SmoothnessOnlyModelFit)
 
     double nu = 1e-2;
 
-    GMMContainer<double> gmmContainer = GMMContainer<double>(keypoint, J, cameras, nu, designMatrix);
+    GMMContainer<double> gmmContainer = GMMContainer<double>(keypoint, J, cameras, nu, 0.0, designMatrix);
     gmmContainer.parameters.pi = pi;
     MC3DModel<double> mc3dModel = MC3DModel<double>(bspline, responsibilities, gmmContainer, hGrads, cameras);
 
@@ -285,7 +285,7 @@ TEST(Derivatives, MultipleSmoothnessFactorsOnlyModelFit)
             hGrads.push_back(hGrad);
         }
 
-        GMMContainer<double> gmmContainer = GMMContainer<double>(keypoint, J, cameras, nu, designMatrix);
+        GMMContainer<double> gmmContainer = GMMContainer<double>(keypoint, J, cameras, nu, 0.0, designMatrix);
         gmmContainer.parameters.pi = pi;
         MC3DModel<double> mc3dModel = MC3DModel<double>(bspline, responsibilities, gmmContainer, hGrads, cameras);
 
@@ -350,7 +350,7 @@ TEST(Derivatives, SmoothnessPenalty)
     }
 
     double nu = 1e-2;
-    GMMContainer<double> gmmContainer = GMMContainer<double>(keypoint, J, cameras, nu, designMatrix);
+    GMMContainer<double> gmmContainer = GMMContainer<double>(keypoint, J, cameras, nu, 0.0, designMatrix);
     gmmContainer.parameters.pi = pi;
     MC3DModel<double> mc3dModel = MC3DModel<double>(bspline, responsibilities, gmmContainer, hGrads, cameras);
 
@@ -418,7 +418,7 @@ TEST(Derivatives, MultipleSmoothnessPenaltyFactors)
             hGrads.push_back(hGrad);
         }
 
-        GMMContainer<double> gmmContainer = GMMContainer<double>(keypoint, J, cameras, nu, designMatrix);
+        GMMContainer<double> gmmContainer = GMMContainer<double>(keypoint, J, cameras, nu, 0.0, designMatrix);
         gmmContainer.parameters.pi = pi;
         MC3DModel<double> mc3dModel = MC3DModel<double>(bspline, responsibilities, gmmContainer, hGrads, cameras);
 

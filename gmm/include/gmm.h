@@ -58,6 +58,8 @@ namespace MC3D_TRECSIM
 
         std::map<int, EMFitResult<Scalar>> fit(const std::map<int, ColMatrix<Scalar>> &initialThetas = std::map<int, ColMatrix<Scalar>>(), const std::map<int, Vector<Scalar>> &initialPis = std::map<int, Vector<Scalar>>());
 
+        void updateTrackingIdSupports(std::map<int, EMFitResult<Scalar>> &fitResults);
+        
         void removeHypothesis(int index);
 
         void removeHypothesisKeyPoints(int index, std::map<int, EMFitResult<Scalar>> &fitResults);

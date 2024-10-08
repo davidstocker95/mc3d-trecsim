@@ -51,3 +51,23 @@ def paint_skeleton_on_image(image: np.ndarray, keypoints, plot_sides: bool = Fal
                             (0, 0, 0), 8, cv2.LINE_AA)
                 cv2.putText(image, KPT_NAMES_SHORTER[kid], (int(x_coord - offset), int(
                     y_coord)), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (255, 255, 255), 4, cv2.LINE_AA)
+
+
+
+def paint_bbox_on_image(image: np.ndarray, bbox, tracker_id: int):
+    color = (0, 0, 255)
+    thickness = 2
+
+    upper_left = bbox[:2].astype(int)
+    lower_right = bbox[2:4].astype(int)
+    upper_left = np.clip(upper_left, 0, [image.shape[1], image.shape[0]])
+    lower_right = np.clip(lower_right, 0, [image.shape[1], image.shape[0]])
+
+    conf = bbox[4]
+
+    text_position = upper_left + np.array([0, -3])
+    text_position = np.clip(text_position, 0, [image.shape[1] - 1, image.shape[0] - 1])
+
+    cv2.rectangle(image, tuple(upper_left), tuple(lower_right), tuple(color), thickness)
+    cv2.putText(image, f'person {int(tracker_id)}: {conf:.2}', tuple(text_position), cv2.FONT_HERSHEY_SIMPLEX, 1.0,
+                color, 4, cv2.LINE_AA)

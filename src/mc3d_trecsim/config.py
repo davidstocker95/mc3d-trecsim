@@ -6,7 +6,34 @@ import time
 
 from dataclass_wizard import YAMLWizard
 
-from .enums import KPT_IDXS
+from .enums import KPT_IDXS, LIMB_IDXS, LIMB_KPTS
+
+
+@dataclass 
+class LimbConfig:
+    expectation: float      # Mean segment length of the limb in percentage of the height
+    std: float              # Standard deviation of the segment length in percentage of the height
+
+    @property
+    def stats(self) -> tuple[float, float]:
+        return self.expectation, self.std
+    
+
+@dataclass
+class LimbsConfig(YAMLWizard):
+    # default values taken from https://exrx.net/Kinesiology/Segments
+    shin: LimbConfig = LimbConfig(25.2, 5.)
+    thigh: LimbConfig = LimbConfig(24.05, 5.)
+    torso: LimbConfig = LimbConfig(29.5, 5.)
+    antebrachium: LimbConfig = LimbConfig(15.85, 3.)
+    brachium: LimbConfig = LimbConfig(17.25, 4.)
+    shoulder_line: LimbConfig = LimbConfig(23., 5.)
+    waist: LimbConfig = LimbConfig(20., 6.)
+    shoulder_to_nose: LimbConfig = LimbConfig(21., 4.5)
+
+
+DEFAULT_LIMB_CONFIG = LimbsConfig()
+
 
 @dataclass
 class LiveConfig(YAMLWizard):
@@ -65,6 +92,25 @@ class LiveConfig(YAMLWizard):
         KPT_IDXS.RIGHT_FOOT,
         KPT_IDXS.LEFT_FOOT]
     )
+    
+    limbs: list[tuple[int, int, float, float]] = field(default_factory=lambda: [
+        (KPT_IDXS.NOSE, KPT_IDXS.RIGHT_SHOULDER, *DEFAULT_LIMB_CONFIG.shoulder_to_nose.stats),
+        (KPT_IDXS.NOSE, KPT_IDXS.LEFT_SHOULDER, *DEFAULT_LIMB_CONFIG.shoulder_to_nose.stats),
+        (*LIMB_KPTS[LIMB_IDXS.SHOULDER_LINE], *DEFAULT_LIMB_CONFIG.shoulder_line.stats),
+        (*LIMB_KPTS[LIMB_IDXS.RIGHT_BRACHIUM], *DEFAULT_LIMB_CONFIG.brachium.stats),
+        (*LIMB_KPTS[LIMB_IDXS.LEFT_BRACHIUM], *DEFAULT_LIMB_CONFIG.brachium.stats),
+        (*LIMB_KPTS[LIMB_IDXS.RIGHT_ANTEBRACHIUM], *DEFAULT_LIMB_CONFIG.antebrachium.stats),
+        (*LIMB_KPTS[LIMB_IDXS.LEFT_ANTEBRACHIUM], *DEFAULT_LIMB_CONFIG.antebrachium.stats),
+        (*LIMB_KPTS[LIMB_IDXS.RIGHT_TORSO], *DEFAULT_LIMB_CONFIG.torso.stats),
+        (*LIMB_KPTS[LIMB_IDXS.LEFT_TORSO], *DEFAULT_LIMB_CONFIG.torso.stats),
+        (*LIMB_KPTS[LIMB_IDXS.WAIST], *DEFAULT_LIMB_CONFIG.waist.stats),
+        (*LIMB_KPTS[LIMB_IDXS.RIGHT_THIGH], *DEFAULT_LIMB_CONFIG.thigh.stats),
+        (*LIMB_KPTS[LIMB_IDXS.LEFT_THIGH], *DEFAULT_LIMB_CONFIG.thigh.stats),
+        (*LIMB_KPTS[LIMB_IDXS.RIGHT_SHIN], *DEFAULT_LIMB_CONFIG.shin.stats),
+        (*LIMB_KPTS[LIMB_IDXS.LEFT_SHIN], *DEFAULT_LIMB_CONFIG.shin.stats)
+    ])
+    limb_regulation_factor: bool = 0.1
+
     disable_visualiser: bool = False
     show_video_feeds: bool = True
     max_fps: float = 25.0
@@ -77,6 +123,7 @@ class LiveConfig(YAMLWizard):
     max_frame_buffer: int = 20
     spline_degree: int = 3
     nu: float = 500.0
+    tracking_id_bias_weight: float = 300.
     auto_manage_theta: bool = True
     auto_manage_hypothesis: bool = True
     copy_last_thetas: bool = True

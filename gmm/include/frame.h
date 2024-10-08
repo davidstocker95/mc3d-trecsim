@@ -21,12 +21,14 @@ namespace MC3D_TRECSIM
     {
         size_t cameraIndex;
         std::vector<RowMatrix<Scalar>> kpts;
+        std::vector<unsigned int> trackerIndices;
         Scalar time;
         Scalar origTimestamp;
 
-        Frame(size_t cameraIndex, std::vector<RowMatrix<Scalar>> kpts, Scalar time, Scalar origTimestamp) :
+        Frame(size_t cameraIndex, std::vector<RowMatrix<Scalar>> kpts, std::vector<unsigned int> trackerIndices, Scalar time, Scalar origTimestamp) :
             cameraIndex(cameraIndex),
             kpts(kpts),
+            trackerIndices(trackerIndices),
             time(time),
             origTimestamp(origTimestamp)
         { }

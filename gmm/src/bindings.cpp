@@ -5,6 +5,7 @@
 #include "gmm_container.h"
 #include <LBFGS.h>
 #include <string>
+#include <tuple>
 #define PYBIND11_DETAILED_ERROR_MESSAGES
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
@@ -167,26 +168,28 @@ PYBIND11_MODULE(gmm, m)
             }));
 
     py::class_<FrameD>(m, "Frame")
-        .def(py::init<size_t, std::vector<RowMatrixD> &, double, double>(),
+        .def(py::init<size_t, std::vector<RowMatrixD> &, std::vector<unsigned int>, double, double>(),
              py::arg("cameraIndex"),
              py::arg("kpts"),
+             py::arg("trackerIndices"),
              py::arg("time"),
              py::arg("origTimestamp"))
         .def_readwrite("cameraIndex", &FrameD::cameraIndex)
         .def_readwrite("kpts", &FrameD::kpts)
+        .def_readwrite("trackerIndices", &FrameD::trackerIndices)
         .def_readwrite("time", &FrameD::time)
         .def_readwrite("origTimestamp", &FrameD::origTimestamp)
         .def(py::pickle(
             [](const FrameD &frame)
             {
-                return py::make_tuple(frame.cameraIndex, frame.kpts, frame.time, frame.origTimestamp);
+                return py::make_tuple(frame.cameraIndex, frame.kpts, frame.trackerIndices, frame.time, frame.origTimestamp);
             },
             [](py::tuple frameTuple)
             {
                 size_t cameraIndex = frameTuple[0].cast<size_t>();
                 std::vector<RowMatrixD> kpts = frameTuple[1].cast<std::vector<RowMatrixD>>();
-
-                FrameD frame = FrameD(cameraIndex, kpts, frameTuple[2].cast<double>(), frameTuple[3].cast<double>());
+                std::vector<unsigned int> trackerIndices = frameTuple[2].cast<std::vector<unsigned int>>();
+                FrameD frame = FrameD(cameraIndex, kpts, trackerIndices, frameTuple[3].cast<double>(), frameTuple[4].cast<double>());
 
                 return frame;
             }));
@@ -194,7 +197,10 @@ PYBIND11_MODULE(gmm, m)
     py::class_<GMMParamD>(m, "GMMParam")
         .def(py::init<>())
         .def_readwrite("KEYPOINTS", &GMMParamD::KEYPOINTS)
+        .def_readwrite("LIMBS", &GMMParamD::LIMBS)
+        .def_readwrite("limbRegulationFactor", &GMMParamD::limbRegulationFactor)
         .def_readwrite("nu", &GMMParamD::nu)
+        .def_readwrite("trackingIdBiasWeight", &GMMParamD::trackingIdBiasWeight)
         .def_readwrite("maxIter", &GMMParamD::maxIter)
         .def_readwrite("keypointConfidenceThreshold", &GMMParamD::keypointConfidenceThreshold)
         .def_readwrite("tol", &GMMParamD::tol)
@@ -219,7 +225,10 @@ PYBIND11_MODULE(gmm, m)
             {
                 return py::make_tuple(
                     gmmParam.KEYPOINTS,
+                    gmmParam.LIMBS,
+                    gmmParam.limbRegulationFactor,
                     gmmParam.nu,
+                    gmmParam.trackingIdBiasWeight,
                     gmmParam.maxIter,
                     gmmParam.keypointConfidenceThreshold,
                     gmmParam.tol,
@@ -243,24 +252,27 @@ PYBIND11_MODULE(gmm, m)
                 GMMParamD gmmParam{};
 
                 gmmParam.KEYPOINTS = gmmParamTuple[0].cast<std::vector<int>>();
-                gmmParam.nu = gmmParamTuple[1].cast<double>();
-                gmmParam.maxIter = gmmParamTuple[2].cast<unsigned int>();
-                gmmParam.keypointConfidenceThreshold = gmmParamTuple[3].cast<double>();
-                gmmParam.tol = gmmParamTuple[4].cast<double>();
-                gmmParam.splineDegree = gmmParamTuple[5].cast<double>();
-                gmmParam.splineKnotDelta = gmmParamTuple[6].cast<double>();
-                gmmParam.maxFrameBuffer = gmmParamTuple[7].cast<unsigned int>();
-                gmmParam.autoManageTheta = gmmParamTuple[8].cast<bool>();
-                gmmParam.copyLastThetas = gmmParamTuple[9].cast<bool>();
-                gmmParam.splineSmoothingFactor = gmmParamTuple[10].cast<double>();
-                gmmParam.autoManageHypothesis = gmmParamTuple[11].cast<bool>();
-                gmmParam.numSupportCameras = gmmParamTuple[12].cast<size_t>();
-                gmmParam.notSupportedSinceThreshold = gmmParamTuple[13].cast<size_t>();
-                gmmParam.responsibilityLookback = gmmParamTuple[14].cast<size_t>();
-                gmmParam.responsibilitySupportThreshold = gmmParamTuple[15].cast<double>();
-                gmmParam.totalResponsibilitySupportThreshold = gmmParamTuple[16].cast<double>();
-                gmmParam.dragAlongUnsupportedKeyPoints = gmmParamTuple[17].cast<bool>();
-                gmmParam.minValidKeyPoints = gmmParamTuple[18].cast<int>();
+                gmmParam.LIMBS = gmmParamTuple[1].cast<std::vector<std::tuple<int, int, double, double>>>();
+                gmmParam.limbRegulationFactor = gmmParamTuple[2].cast<double>();
+                gmmParam.nu = gmmParamTuple[3].cast<double>();
+                gmmParam.trackingIdBiasWeight = gmmParamTuple[4].cast<double>();
+                gmmParam.maxIter = gmmParamTuple[5].cast<unsigned int>();
+                gmmParam.keypointConfidenceThreshold = gmmParamTuple[6].cast<double>();
+                gmmParam.tol = gmmParamTuple[7].cast<double>();
+                gmmParam.splineDegree = gmmParamTuple[8].cast<double>();
+                gmmParam.splineKnotDelta = gmmParamTuple[9].cast<double>();
+                gmmParam.maxFrameBuffer = gmmParamTuple[10].cast<unsigned int>();
+                gmmParam.autoManageTheta = gmmParamTuple[11].cast<bool>();
+                gmmParam.copyLastThetas = gmmParamTuple[12].cast<bool>();
+                gmmParam.splineSmoothingFactor = gmmParamTuple[13].cast<double>();
+                gmmParam.autoManageHypothesis = gmmParamTuple[14].cast<bool>();
+                gmmParam.numSupportCameras = gmmParamTuple[15].cast<size_t>();
+                gmmParam.notSupportedSinceThreshold = gmmParamTuple[16].cast<size_t>();
+                gmmParam.responsibilityLookback = gmmParamTuple[17].cast<size_t>();
+                gmmParam.responsibilitySupportThreshold = gmmParamTuple[18].cast<double>();
+                gmmParam.totalResponsibilitySupportThreshold = gmmParamTuple[19].cast<double>();
+                gmmParam.dragAlongUnsupportedKeyPoints = gmmParamTuple[20].cast<bool>();
+                gmmParam.minValidKeyPoints = gmmParamTuple[21].cast<int>();
 
                 return gmmParam;
             }));
@@ -297,20 +309,21 @@ PYBIND11_MODULE(gmm, m)
                 lbfgsParam.linesearch = lbfgsParamTuple[6].cast<int>();
                 lbfgsParam.max_linesearch = lbfgsParamTuple[7].cast<int>();
                 lbfgsParam.min_step = lbfgsParamTuple[8].cast<double>();
-                lbfgsParam.max_step = lbfgsParamTuple[6].cast<double>();
-                lbfgsParam.ftol = lbfgsParamTuple[7].cast<double>();
-                lbfgsParam.wolfe = lbfgsParamTuple[8].cast<double>();
+                lbfgsParam.max_step = lbfgsParamTuple[9].cast<double>();
+                lbfgsParam.ftol = lbfgsParamTuple[10].cast<double>();
+                lbfgsParam.wolfe = lbfgsParamTuple[11].cast<double>();
 
                 return lbfgsParam;
             }));
 
     py::class_<GMMContainerD>(m, "GMMContainer")
         .def(py::init<>())
-        .def(py::init<int, int, std::vector<CameraD>&, double, const RowMatrixD &>(),
+        .def(py::init<int, int, std::vector<CameraD>&, double, double, const RowMatrixD &>(),
              py::arg("KEYPOINT"),
              py::arg("J"),
              py::arg("cameras"),
              py::arg("nu"),
+             py::arg("trackingIdBiasWeight"),
              py::arg("designMatrix"))
         .def_readwrite("parameters", &GMMContainerD::parameters);
 

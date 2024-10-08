@@ -29,6 +29,7 @@ namespace MC3D_TRECSIM
         size_t notSupportedSince;
         bool isNew;
         int addedAt;
+        std::map<size_t, unsigned int> trackerIndices;
     };
 
     template <typename Scalar>
@@ -36,6 +37,7 @@ namespace MC3D_TRECSIM
     {
         Vector<Scalar> keypoint;
         Scalar time;
+        unsigned int trackerIndex;
         size_t cameraIndex;
         unsigned int frameIndex;
     };
@@ -69,11 +71,12 @@ namespace MC3D_TRECSIM
         std::vector<Camera<Scalar>> cameras;
         GMMParameters<Scalar> parameters;
         Scalar nu;
+        Scalar trackingIdBiasWeight;
         std::vector<Support> supports;
 
-        GMMContainer(int KEYPOINT = 0, const int &J = 0, std::vector<Camera<Scalar>> cameras = std::vector<Camera<Scalar>>(), Scalar nu = 1.0, const RowMatrix<Scalar> &designMatrix = RowMatrix<Scalar>::Zero(0, 0));
+        GMMContainer(int KEYPOINT = 0, const int &J = 0, std::vector<Camera<Scalar>> cameras = std::vector<Camera<Scalar>>(), Scalar nu = 1.0, Scalar trackingIdBiasWeight = 0., const RowMatrix<Scalar> &designMatrix = RowMatrix<Scalar>::Zero(0, 0));
 
-        inline void addKeypoint(Vector<Scalar> keypoint, Scalar time, size_t cameraIndex, unsigned int frameIndex);
+        inline void addKeypoint(Vector<Scalar> keypoint, Scalar time, unsigned int trackerIndex, size_t cameraIndex, unsigned int frameIndex);
 
         void dropFrame();
 
@@ -82,6 +85,8 @@ namespace MC3D_TRECSIM
         inline const int getNumValues() const;
 
         inline Scalar logProb(const int valueIndex, const int hypothesisIndex);
+
+        inline Scalar logProbTrackerIdBias(const int valueIndex, const int hypothesisIndex);
 
     private:
         bool enoughPoints;
