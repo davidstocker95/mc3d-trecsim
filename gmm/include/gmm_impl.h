@@ -191,7 +191,7 @@ namespace MC3D_TRECSIM
         }
 
         int offset{int(designMatrix.rows()) - spline.getNumBasis() + 1};
-        //TODO add tracker indices update here
+
         if (gmmParam.dragAlongUnsupportedKeyPoints)
         {
             int nSupportedMeanPoints = 0;
@@ -243,8 +243,74 @@ namespace MC3D_TRECSIM
             }
         }
 
+        updateTrackingIdSupports(fitResults);
+
         return fitResults;
     }
+
+    template <typename Scalar>
+    void GMM<Scalar>::updateTrackingIdSupports(std::map<int, EMFitResult<Scalar>> &fitResults)
+    {
+        for (size_t j = 0; j < J; ++j)
+        {
+            for (size_t k = 0; k < cameras.size(); ++k)
+            {
+                std::unordered_map<unsigned int, Scalar> trackingIDResponsibility;
+
+                for (const auto& containerPair : gmmContainers)
+                {
+                    const GMMContainer<Scalar> &gmmContainer = containerPair.second;
+                    const RowMatrix<Scalar> &responsibilities = fitResults.at(containerPair.first).responsibilities;
+
+                    for (size_t n = 0; n < gmmContainer.keyPoints.size(); ++n)
+                    {
+                        const KeyPoint<Scalar> &kp = gmmContainer.keyPoints[n];
+
+                        if (kp.cameraIndex == k)
+                        {
+                            trackingIDResponsibility[kp.trackerIndex] += responsibilities(n, j);
+                        }
+                    }
+                }
+
+                // Find the tracking ID with the maximum cumulative responsibility
+                unsigned int bestTrackingID {0};
+                Scalar maxResponsibility {-std::numeric_limits<Scalar>::infinity()};
+
+                for (const auto &trackingPair : trackingIDResponsibility)
+                {
+                    if (trackingPair.second > maxResponsibility)
+                    {
+                        maxResponsibility = trackingPair.second;
+                        bestTrackingID = trackingPair.first;
+                    }
+                }
+
+                // Assign the best tracking ID to all keypoint types for this hypothesis (j) and camera (k)
+                for (auto& containerPair : gmmContainers)
+                {
+                    GMMContainer<Scalar> &gmmContainer = containerPair.second;
+                    gmmContainer.supports[j].trackerIndices[k] = bestTrackingID;
+                }
+            }
+        }
+
+        // auto gmmContainer = gmmContainers.begin()->second; 
+        // std::cout << "Number of Hypotheses: " << gmmContainer.J << std::endl;
+        // for (const auto& support : gmmContainer.supports)
+        // {
+        //     std::cout << "Support Information:" << std::endl;
+        //     for (const auto& tracker : support.trackerIndices)
+        //     {
+        //         size_t cameraIndex = tracker.first;
+        //         unsigned int trackingID = tracker.second;
+        //         std::cout << "Camera " << cameraIndex << ": Tracker ID = " << trackingID << std::endl;
+        //     }
+        // }
+        // std::cout << std::endl;
+
+    }
+
 
     template <typename Scalar>
     inline void GMM<Scalar>::addHypothesis()
