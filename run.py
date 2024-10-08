@@ -194,10 +194,9 @@ def runner(args: LiveArgs):
             # cv2.startWindowThread()
 
         post_inference_start = time.perf_counter()
-        ziped = zip(frames, all_kpts, timestamps, list(enumerate(cameras)))
+        ziped = zip(frames, all_kpts, all_tracker_ids, timestamps, list(enumerate(cameras)))
 
-        for frame, kpts, timestamp, (camera_index, camera) in ziped:
-            tracker_indices = [j for j, person in enumerate(kpts) if np.any(kpts)]
+        for frame, kpts, tracker_ids, timestamp, (camera_index, camera) in ziped:
             if not config.undistort_images:
                 for person in kpts:
                     person[:, :2] = cv2.undistortImagePoints(
@@ -205,7 +204,7 @@ def runner(args: LiveArgs):
                         .reshape(person[:, :2].shape)
 
             cpp_frame: Frame = Frame(
-                camera_index, kpts, tracker_indices, timestamp - start_timestamp, timestamp)
+                camera_index, kpts, tracker_ids, timestamp - start_timestamp, timestamp)
             gmm.addFrame(cpp_frame)
         post_inference_end = time.perf_counter()
 
@@ -219,7 +218,7 @@ def runner(args: LiveArgs):
         fit_times.append(time.perf_counter() - fit_start)
 
         skeletons, paths, validities, keypoint_validitites = skeleton_calculator.calculate(
-            gmm, fit_result)
+           gmm, fit_result)
 
         visualizer.visualise_skeletons(
             skeletons, paths, validities, keypoint_validitites, [])
@@ -253,3 +252,4 @@ def main() -> int:
 
 if __name__ == '__main__':
     sys.exit(main())
+ 

@@ -191,7 +191,7 @@ namespace MC3D_TRECSIM
         }
 
         int offset{int(designMatrix.rows()) - spline.getNumBasis() + 1};
-
+        //TODO add tracker indices update here
         if (gmmParam.dragAlongUnsupportedKeyPoints)
         {
             int nSupportedMeanPoints = 0;
@@ -550,7 +550,7 @@ namespace MC3D_TRECSIM
     {
         for (int KEYPOINT : gmmParam.KEYPOINTS)
         {
-            gmmContainers.insert(std::make_pair(KEYPOINT, GMMContainer<Scalar>(KEYPOINT, J, cameras, gmmParam.nu, designMatrix)));
+            gmmContainers.insert(std::make_pair(KEYPOINT, GMMContainer<Scalar>(KEYPOINT, J, cameras, gmmParam.nu, gmmParam.trackingIdBiasWeight , designMatrix)));
             gmmContainers[KEYPOINT].parameters.pi = Vector<Scalar>::Ones(J) / J;
         }
     }

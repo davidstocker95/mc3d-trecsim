@@ -109,7 +109,7 @@ class LiveConfig(YAMLWizard):
         (*LIMB_KPTS[LIMB_IDXS.RIGHT_SHIN], *DEFAULT_LIMB_CONFIG.shin.stats),
         (*LIMB_KPTS[LIMB_IDXS.LEFT_SHIN], *DEFAULT_LIMB_CONFIG.shin.stats)
     ])
-    limb_regulation_factor: 0.1
+    limb_regulation_factor: bool = 0.1
 
     disable_visualiser: bool = False
     show_video_feeds: bool = True
@@ -123,6 +123,7 @@ class LiveConfig(YAMLWizard):
     max_frame_buffer: int = 20
     spline_degree: int = 3
     nu: float = 500.0
+    tracking_id_bias_weight: float = 50.
     auto_manage_theta: bool = True
     auto_manage_hypothesis: bool = True
     copy_last_thetas: bool = True

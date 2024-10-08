@@ -3,13 +3,19 @@
 
 #include "config.h"
 #include "mc3d_common.h"
-
 #include <vector>
 #include <tuple>
 #include <iostream>
 
 namespace MC3D_TRECSIM
-{
+{   
+    template <typename Scalar>
+    struct RelationMatrices {
+        RowMatrix<int> connectionMatrix;      // Use int for binary relationship (0 or 1).
+        RowMatrix<Scalar> meanMatrix;         // Use Scalar type for mean.
+        RowMatrix<Scalar> varianceMatrix;     // Use Scalar type for variance.
+    };
+
     template <typename Scalar>
     class GMMParam
     {
@@ -18,6 +24,7 @@ namespace MC3D_TRECSIM
         std::vector<std::tuple<int, int, double, double>> LIMBS;
         Scalar limbRegulationFactor;
         Scalar nu;
+        Scalar trackingIdBiasWeight;
         unsigned int maxIter;
         Scalar keypointConfidenceThreshold;
         Scalar tol;
@@ -41,6 +48,7 @@ namespace MC3D_TRECSIM
                      LIMBS(std::vector<std::tuple<int, int, double, double>>()),
                      limbRegulationFactor(0.0),
                      nu(1.0),
+                     trackingIdBiasWeight(0.0),
                      maxIter(100),
                      keypointConfidenceThreshold(0.5),
                      tol(1.0),
@@ -74,6 +82,40 @@ namespace MC3D_TRECSIM
             srand(seed);
         }
 
+        // RelationMatrices getKeypointRelationMatrix()
+        // {   
+        //     RelationMatrices matrices;
+        //     int numKeypoints = KEYPOINTS.size();
+        //     matrices.connectionMatrix = RowMatrix<int>(numKeypoints, numKeypoints);
+        //     matrices.meanMatrix = RowMatrix<Scalar>(numKeypoints, numKeypoints);
+        //     matrices.varianceMatrix = RowMatrix<Scalar>(numKeypoints, numKeypoints);
+
+        //     // Initialize matrices with default values
+        //     matrices.connectionMatrix.setZero();
+        //     matrices.meanMatrix.setZero();
+        //     matrices.varianceMatrix.setZero();
+
+        //     for (auto limb : LIMBS) {
+        //         int keypoint1 = std::get<0>(limb);
+        //         int keypoint2 = std::get<1>(limb);
+        //         Scalar mean = std::get<2>(limb);
+        //         Scalar variance = std::get<3>(limb);
+
+        //         // Set connection to 1 (indicating a connection exists)
+        //         matrices.connectionMatrix.coeffRef(keypoint1, keypoint2) = 1;
+        //         matrices.connectionMatrix.coeffRef(keypoint2, keypoint1) = 1;
+
+        //         // Set mean and variance values
+        //         matrices.meanMatrix.coeffRef(keypoint1, keypoint2) = mean;
+        //         matrices.meanMatrix.coeffRef(keypoint2, keypoint1) = mean;
+
+        //         matrices.varianceMatrix.coeffRef(keypoint1, keypoint2) = variance;
+        //         matrices.varianceMatrix.coeffRef(keypoint2, keypoint1) = variance;
+        //     }
+
+        //     return matrices;
+        // }
+
         friend std::ostream &operator<<(std::ostream &os, const GMMParam &obj)
         {
             os << "GMMParams:" << std::endl;
@@ -102,6 +144,7 @@ namespace MC3D_TRECSIM
             // Printing other members
             os << "\t" << "limbRegulationFactor: " << obj.limbRegulationFactor << std::endl;
             os << "\t" << "nu: " << obj.nu << std::endl;
+            os << "\t" << "trackingIdBiasWeight: " << obj.trackingIdBiasWeight << std::endl;
             os << "\t" << "maxIter: " << obj.maxIter << std::endl;
             os << "\t" << "keypointConfidenceThreshold: " << obj.keypointConfidenceThreshold << std::endl;
             os << "\t" << "tol: " << obj.tol << std::endl;
