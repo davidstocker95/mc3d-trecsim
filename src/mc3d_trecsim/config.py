@@ -123,7 +123,7 @@ class LiveConfig(YAMLWizard):
     max_frame_buffer: int = 20
     spline_degree: int = 3
     nu: float = 500.0
-    tracking_id_bias_weight: float = 300.
+    tracking_id_bias_weight: float = 600.
     auto_manage_theta: bool = True
     auto_manage_hypothesis: bool = True
     copy_last_thetas: bool = True

@@ -96,5 +96,20 @@ namespace MC3D_TRECSIM
             }
         }
     }
+
+    // template <typename Scalar>
+    // inline void MC3DModel<Scalar>::addLimbLengthRegularization(Scalar &fx, Vector<Scalar> &theta, Vector<Scalar> &thetaGrad)
+    // {
+    //     for (int j = 0; j < gmmContainer.getNumHypothesis(); ++j)
+    //     {
+    //         if (!gmmContainer.supports[j].supported)
+    //         {
+    //             continue;
+    //         }
+    //         for (int n = 0; n < gmmmContainer.keypoints.size(); ++n) {
+                
+    //         }
+    //     }
+    // }
 }
 #endif

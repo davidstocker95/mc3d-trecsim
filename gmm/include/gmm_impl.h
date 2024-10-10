@@ -127,6 +127,7 @@ namespace MC3D_TRECSIM
     std::map<int, EMFitResult<Scalar>> GMM<Scalar>::fit(const std::map<int, ColMatrix<Scalar>> &initialThetas, const std::map<int, Vector<Scalar>> &initialPis)
     {
         prepareCalculations(initialThetas, initialPis);
+
         std::map<int, EMFitResult<Scalar>> fitResults;
         EMFitResult<Scalar> fitResult;
         fitResult.supports = std::vector<bool>(J, false);
@@ -259,6 +260,10 @@ namespace MC3D_TRECSIM
 
                 for (const auto& containerPair : gmmContainers)
                 {
+                    if (containerPair.first == -1)
+                    {
+                        continue;
+                    }
                     const GMMContainer<Scalar> &gmmContainer = containerPair.second;
                     const RowMatrix<Scalar> &responsibilities = fitResults.at(containerPair.first).responsibilities;
 
@@ -289,6 +294,10 @@ namespace MC3D_TRECSIM
                 // Assign the best tracking ID to all keypoint types for this hypothesis (j) and camera (k)
                 for (auto& containerPair : gmmContainers)
                 {
+                    if (containerPair.first == -1)
+                    {
+                        continue;
+                    }
                     GMMContainer<Scalar> &gmmContainer = containerPair.second;
                     gmmContainer.supports[j].trackerIndices[k] = bestTrackingID;
                 }
@@ -321,7 +330,7 @@ namespace MC3D_TRECSIM
 
     template <typename Scalar>
     void GMM<Scalar>::addHypothesis(const WorldPoint<Scalar> &worldPoint)
-    {
+    {   
         if (gmmParam.autoManageTheta)
         {
             ColMatrix<Scalar> newTheta = ColMatrix<Scalar>::Ones(spline.getNumBasis(), 3);
@@ -369,6 +378,7 @@ namespace MC3D_TRECSIM
             gmmContainers[KEYPOINT].supports.push_back(Support(frames.size()-1));
         }
         ++J;
+
 #ifdef DEBUG_STATEMENTS
         std::cout << "Adding Hypothesis to J = " << J << std::endl;
 #endif
@@ -594,8 +604,13 @@ namespace MC3D_TRECSIM
         {
             for (int j = 0; j < frame.kpts.size(); ++j)
             {   
+
                 RowMatrix<Scalar> person = frame.kpts[j];
                 unsigned int trackerIndex = frame.trackerIndices[j];
+
+                CameraPoint<Scalar> personKptMean = CameraPoint<Scalar>::Zero(2);
+                int nrPersonKpts = 0;            
+
                 for (auto KEYPOINT : gmmParam.KEYPOINTS)
                 {
                     if (person(KEYPOINT, 2) >= gmmParam.keypointConfidenceThreshold)
@@ -605,7 +620,15 @@ namespace MC3D_TRECSIM
                         #endif
 
                         gmmContainers[KEYPOINT].addKeypoint(person.row(KEYPOINT).head(2), frame.time, trackerIndex, frame.cameraIndex, frames.size() - 1);
+
+                        personKptMean += person.row(KEYPOINT).head(2);
+                        ++nrPersonKpts;
                     }
+                }
+
+                if (nrPersonKpts > 0 && nrPersonKpts >= gmmParam.minValidKeyPoints)
+                {   
+                    gmmContainers[-1].addKeypoint(personKptMean / nrPersonKpts, frame.time, trackerIndex, frame.cameraIndex, frames.size() - 1);
                 }
             }
         }
@@ -613,10 +636,15 @@ namespace MC3D_TRECSIM
 
     template <typename Scalar>
     void GMM<Scalar>::initGMMContainers()
-    {
+    {   
+        // Create GMMContainer for person detection mean points and assign keypoint id -1 to this
+        gmmContainers.insert(std::make_pair(-1, GMMContainer<Scalar>(-1, J, cameras, gmmParam.nu, gmmParam.trackingIdBiasWeight, designMatrix)));
+        gmmContainers[-1].parameters.pi = Vector<Scalar>::Ones(J) / J;
+
+        // Create GMMContainer for each keypoint
         for (int KEYPOINT : gmmParam.KEYPOINTS)
         {
-            gmmContainers.insert(std::make_pair(KEYPOINT, GMMContainer<Scalar>(KEYPOINT, J, cameras, gmmParam.nu, gmmParam.trackingIdBiasWeight , designMatrix)));
+            gmmContainers.insert(std::make_pair(KEYPOINT, GMMContainer<Scalar>(KEYPOINT, J, cameras, gmmParam.nu, gmmParam.trackingIdBiasWeight, designMatrix)));
             gmmContainers[KEYPOINT].parameters.pi = Vector<Scalar>::Ones(J) / J;
         }
     }

@@ -63,7 +63,7 @@ TEST(GMM, Init)
     std::cout << "Expected Design Matrix:" << std::endl;
     std::cout << expectedDesignMatrix.format(HeavyFormat) << std::endl;
 
-    ASSERT_EQ(gmm.gmmContainers.size(), 3);
+    ASSERT_EQ(gmm.gmmContainers.size(), 4);
     ASSERT_TRUE(gmm.gmmContainers[0].mvn.getCovariance().isApprox(expectedCovariance));
     ASSERT_TRUE(gmm.gmmContainers[5].mvn.getCovariance().isApprox(expectedCovariance));
     ASSERT_TRUE(gmm.gmmContainers[6].mvn.getCovariance().isApprox(expectedCovariance));
@@ -127,7 +127,7 @@ TEST(GMM, AddMultipleFrames)
     std::cout << "Expected Covariance:" << std::endl;
     std::cout << expectedCovariance.format(HeavyFormat) << std::endl;
 
-    ASSERT_EQ(gmm.gmmContainers.size(), 3);
+    ASSERT_EQ(gmm.gmmContainers.size(), 4);
     ASSERT_TRUE(gmm.gmmContainers[0].mvn.getCovariance().isApprox(expectedCovariance));
     ASSERT_TRUE(gmm.gmmContainers[5].mvn.getCovariance().isApprox(expectedCovariance));
     ASSERT_TRUE(gmm.gmmContainers[6].mvn.getCovariance().isApprox(expectedCovariance));
@@ -601,7 +601,7 @@ TEST(GMM, AddHypothesis)
     
     gmm.addHypothesis();
 
-    ASSERT_EQ(gmm.gmmContainers.size(), 2);
+    ASSERT_EQ(gmm.gmmContainers.size(), 3);
 
     ASSERT_EQ(gmm.gmmContainers[rightShoulderKeypoint].parameters.theta.rows(), 5);
     ASSERT_EQ(gmm.gmmContainers[rightShoulderKeypoint].parameters.theta.cols(), 3);
@@ -783,7 +783,7 @@ TEST(GMM, FitWithoutHypothesis)
         gmm.addFrame(frame);
     }
 
-    ASSERT_EQ(gmm.gmmContainers.size(), 2);
+    ASSERT_EQ(gmm.gmmContainers.size(), 3);
 
     ASSERT_EQ(gmm.gmmContainers[rightShoulderKeypoint].parameters.theta.rows(), 5);
     ASSERT_EQ(gmm.gmmContainers[rightShoulderKeypoint].parameters.theta.cols(), 0);
