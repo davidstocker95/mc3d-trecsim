@@ -19,8 +19,10 @@ namespace MC3D_TRECSIM
     template <typename Scalar>
     class GMMParam
     {
-    public:
+    private:
         std::vector<int> KEYPOINTS;
+
+    public:
         std::vector<std::tuple<int, int, double, double>> LIMBS;
         Scalar limbRegulationFactor;
         Scalar nu;
@@ -81,6 +83,30 @@ namespace MC3D_TRECSIM
             this->seed = seed;
             srand(seed);
         }
+
+        void setKeypoints(const std::vector<int> &keypoints)
+        {
+            KEYPOINTS = keypoints;
+            if (KEYPOINTS.empty() || KEYPOINTS[0] != -1)
+            {
+                KEYPOINTS.insert(KEYPOINTS.begin(), -1);
+            }
+        }
+        
+        const std::vector<int>& getKeypoints() const
+        {
+            return KEYPOINTS;
+        }
+
+        std::vector<int> getPhysicalKeypoints() const
+        {
+            if (KEYPOINTS.size() <= 1)
+            {
+                return {};
+            }
+            return std::vector<int>(KEYPOINTS.begin() + 1, KEYPOINTS.end());
+        }
+
 
         // RelationMatrices getKeypointRelationMatrix()
         // {   

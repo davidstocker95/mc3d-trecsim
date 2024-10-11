@@ -141,7 +141,7 @@ int start(const std::string &filename)
     std::vector<int> KEYPOINTS{5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
 
     MC3D_TRECSIM::GMMParam<double> gmmParam = getGMMParam();
-    gmmParam.KEYPOINTS = KEYPOINTS;
+    gmmParam.setKeypoints(KEYPOINTS);
 
     LBFGSpp::LBFGSParam<double> lbfgsParam = getLBFGSParam();
 

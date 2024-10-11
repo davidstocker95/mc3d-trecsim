@@ -29,7 +29,7 @@ TEST(MC3DModel, Call)
     double keypointConfidenceThreshold = 0.5;
 
     GMMParam<double> gmmParam;
-    gmmParam.KEYPOINTS = KEYPOINTS;
+    gmmParam.setKeypoints(KEYPOINTS);
     gmmParam.splineKnotDelta = 45;
 
     LBFGSpp::LBFGSParam<double> lbfgsParam;
@@ -102,7 +102,7 @@ TEST(MC3DModel, AddFrameOverBoundaries)
     double keypointConfidenceThreshold = 0.5;
 
     GMMParam<double> gmmParam;
-    gmmParam.KEYPOINTS = KEYPOINTS;
+    gmmParam.setKeypoints(KEYPOINTS);
     gmmParam.splineKnotDelta = 45;
     gmmParam.maxFrameBuffer = 2;
     gmmParam.autoManageTheta = true;
@@ -174,7 +174,7 @@ TEST(MC3DModel, AddFrameOverBoundaries2)
     std::map<int, Vector<double>> initialPis;
 
     GMMParam<double> gmmParam;
-    gmmParam.KEYPOINTS = KEYPOINTS;
+    gmmParam.setKeypoints(KEYPOINTS);
     gmmParam.splineKnotDelta = 1;
     gmmParam.maxFrameBuffer = 3;
     gmmParam.autoManageTheta = true;
@@ -250,7 +250,7 @@ TEST(MC3DModel, AddFrameInBoundariesMultiplePointsPerFrame)
     double keypointConfidenceThreshold = 0.5;
 
     GMMParam<double> gmmParam;
-    gmmParam.KEYPOINTS = KEYPOINTS;
+    gmmParam.setKeypoints(KEYPOINTS);
     gmmParam.splineKnotDelta = 45;
     gmmParam.maxFrameBuffer = 2;
 

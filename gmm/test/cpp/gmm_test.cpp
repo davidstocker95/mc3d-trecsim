@@ -36,7 +36,7 @@ TEST(GMM, Init)
     double tol = 1e-1;
 
     GMMParam<double> gmmParam;
-    gmmParam.KEYPOINTS = KEYPOINTS;
+    gmmParam.setKeypoints(KEYPOINTS);
     gmmParam.splineKnotDelta = 45;
 
     LBFGSpp::LBFGSParam<double> lbfgsParam;
@@ -91,7 +91,7 @@ TEST(GMM, AddMultipleFrames)
     double tol = 1e-1;
 
     GMMParam<double> gmmParam;
-    gmmParam.KEYPOINTS = KEYPOINTS;
+    gmmParam.setKeypoints(KEYPOINTS);
     gmmParam.splineKnotDelta = 45;
     gmmParam.nu = 12;
 
@@ -154,7 +154,7 @@ TEST(GMM, H)
     double tol = 1e-1;
 
     GMMParam<double> gmmParam;
-    gmmParam.KEYPOINTS = KEYPOINTS;
+    gmmParam.setKeypoints(KEYPOINTS);
     gmmParam.splineKnotDelta = 45;
 
     LBFGSpp::LBFGSParam<double> lbfgsParam;
@@ -202,7 +202,7 @@ TEST(GMM, Fit)
     int keypoint = 5;
 
     GMMParam<double> gmmParam;
-    gmmParam.KEYPOINTS = KEYPOINTS;
+    gmmParam.setKeypoints(KEYPOINTS);
     gmmParam.splineKnotDelta = 45;
 
     LBFGSpp::LBFGSParam<double> lbfgsParam;
@@ -242,7 +242,7 @@ TEST(GMM, Fit)
     std::cout << "Expected Theta:" << std::endl;
     std::cout << expectedTheta.format(HeavyFormat) << std::endl;
 
-    ASSERT_EQ(fitResults.size(), 1);
+    ASSERT_EQ(fitResults.size(), 2);
     ASSERT_TRUE(fitResult.parameters.theta.isApprox(expectedTheta, 1e-1));
 }
 
@@ -268,7 +268,7 @@ TEST(GMM, FitAfterMultipleFrameAdds)
     int keypoint = 5;
 
     GMMParam<double> gmmParam;
-    gmmParam.KEYPOINTS = KEYPOINTS;
+    gmmParam.setKeypoints(KEYPOINTS);
     gmmParam.splineKnotDelta = 45;
 
     LBFGSpp::LBFGSParam<double> lbfgsParam;
@@ -304,7 +304,7 @@ TEST(GMM, FitAfterMultipleFrameAdds)
     std::cout << "Expected Theta:" << std::endl;
     std::cout << expectedTheta.format(HeavyFormat) << std::endl;
 
-    ASSERT_EQ(fitResults.size(), 1);
+    ASSERT_EQ(fitResults.size(), 2);
     ASSERT_TRUE(fitResult.parameters.theta.isApprox(expectedTheta, 1e-1));
 }
 
@@ -329,7 +329,7 @@ TEST(GMM, CheckAutoThetaIncrease)
     int keypoint = 5;
 
     GMMParam<double> gmmParam;
-    gmmParam.KEYPOINTS = KEYPOINTS;
+    gmmParam.setKeypoints(KEYPOINTS);
     gmmParam.splineKnotDelta = 45;
 
     LBFGSpp::LBFGSParam<double> lbfgsParam;
@@ -369,7 +369,7 @@ TEST(GMM, CheckAutoThetaIncrease)
     std::cout << "Expected Theta:" << std::endl;
     std::cout << expectedTheta.format(HeavyFormat) << std::endl;
 
-    ASSERT_EQ(fitResults.size(), 1);
+    ASSERT_EQ(fitResults.size(), 2);
     ASSERT_TRUE(fitResult.parameters.theta.isApprox(expectedTheta, 1e-1));
 }
 
@@ -393,7 +393,7 @@ TEST(GMM, FitTwoPeopleWithOneHypothesis)
     int keypoint = 5;
 
     GMMParam<double> gmmParam;
-    gmmParam.KEYPOINTS = KEYPOINTS;
+    gmmParam.setKeypoints(KEYPOINTS);
     gmmParam.splineKnotDelta = 45;
     gmmParam.nu = 1.0;
 
@@ -434,7 +434,7 @@ TEST(GMM, FitTwoPeopleWithOneHypothesis)
     std::cout << "Expected Theta:" << std::endl;
     std::cout << expectedTheta.format(HeavyFormat) << std::endl;
 
-    ASSERT_EQ(fitResults.size(), 1);
+    ASSERT_EQ(fitResults.size(), 2);
     ASSERT_TRUE(fitResult.parameters.theta.isApprox(expectedTheta, 1e-1));
 }
 
@@ -451,7 +451,7 @@ TEST(GMM, FitTwoPeopleWithTwoHypothesisWithPredefinedThetas)
     std::map<int, Vector<double>> initialPis;
 
     GMMParam<double> gmmParam;
-    gmmParam.KEYPOINTS = KEYPOINTS;
+    gmmParam.setKeypoints(KEYPOINTS);
     gmmParam.tol = 1e-6;
     gmmParam.splineKnotDelta = 200;
     gmmParam.maxFrameBuffer = 20;
@@ -508,7 +508,7 @@ TEST(GMM, FitTwoPeopleWithTwoHypothesisWithPredefinedThetas)
     std::cout << "Expected Theta:" << std::endl;
     std::cout << theta.format(HeavyFormat) << std::endl;
 
-    ASSERT_EQ(fitResults.size(), 1);
+    ASSERT_EQ(fitResults.size(), 2);
     ASSERT_TRUE(fitResult.parameters.theta.isApprox(theta, 1e-1));
 }
 
@@ -527,7 +527,7 @@ TEST(GMM, FitTwoKeypoints)
     int rightElbowKeypoint = 7;
 
     GMMParam<double> gmmParam;
-    gmmParam.KEYPOINTS = {5, 7};
+    gmmParam.setKeypoints({5, 7});
     gmmParam.splineKnotDelta = 45;
 
     LBFGSpp::LBFGSParam<double> lbfgsParam;
@@ -564,7 +564,7 @@ TEST(GMM, FitTwoKeypoints)
     std::cout << "Expected Theta (Right Elbow):" << std::endl;
     std::cout << expectedThetaRightElbow.format(HeavyFormat) << std::endl;
 
-    ASSERT_EQ(fitResults.size(), 2);
+    ASSERT_EQ(fitResults.size(), 3);
     ASSERT_TRUE(fitResults[rightShoulderKeypoint].parameters.theta.isApprox(expectedThetaRightShoulder, 1e-1));
     ASSERT_TRUE(fitResults[rightElbowKeypoint].parameters.theta.isApprox(expectedThetaRightElbow, 1e-1));
 }
@@ -583,7 +583,7 @@ TEST(GMM, AddHypothesis)
     int rightElbowKeypoint = 7;
 
     GMMParam<double> gmmParam;
-    gmmParam.KEYPOINTS = {5, 7};
+    gmmParam.setKeypoints({5, 7});
     gmmParam.splineKnotDelta = 45;
     gmmParam.autoManageTheta = true;
     gmmParam.autoManageHypothesis = false;
@@ -656,7 +656,7 @@ TEST(GMM, RemoveHypothesis)
     int rightElbowKeypoint = 7;
 
     GMMParam<double> gmmParam;
-    gmmParam.KEYPOINTS = {5, 7};
+    gmmParam.setKeypoints({5, 7});
     gmmParam.splineKnotDelta = 45;
     gmmParam.autoManageTheta = true;
 
@@ -768,7 +768,7 @@ TEST(GMM, FitWithoutHypothesis)
     int rightElbowKeypoint = 7;
 
     GMMParam<double> gmmParam;
-    gmmParam.KEYPOINTS = {5, 7};
+    gmmParam.setKeypoints({5, 7});
     gmmParam.splineKnotDelta = 45;
     gmmParam.autoManageTheta = true;
 
@@ -793,7 +793,7 @@ TEST(GMM, FitWithoutHypothesis)
 
     std::map<int, EMFitResult<double>> fitResults = gmm.fit();
 
-    ASSERT_EQ(fitResults.size(), 2);
+    ASSERT_EQ(fitResults.size(), 3);
 
     for(auto fitResult : fitResults)
     {
@@ -819,7 +819,7 @@ TEST(GMM, FitTwoKeypointsAfterAddHypothesis)
     int rightElbowKeypoint = 7;
 
     GMMParam<double> gmmParam;
-    gmmParam.KEYPOINTS = {5, 7};
+    gmmParam.setKeypoints({5, 7});
     gmmParam.splineKnotDelta = 45;
 
     LBFGSpp::LBFGSParam<double> lbfgsParam;
@@ -860,7 +860,7 @@ TEST(GMM, FitTwoKeypointsAfterAddHypothesis)
     std::cout << "Expected Theta (Right Elbow):" << std::endl;
     std::cout << expectedThetaRightElbow.format(HeavyFormat) << std::endl;
 
-    ASSERT_EQ(fitResults.size(), 2);
+    ASSERT_EQ(fitResults.size(), 3);
     ASSERT_TRUE(fitResults[rightShoulderKeypoint].parameters.theta.isApprox(expectedThetaRightShoulder, 1e-1));
     ASSERT_TRUE(fitResults[rightElbowKeypoint].parameters.theta.isApprox(expectedThetaRightElbow, 1e-1));
 }
@@ -879,7 +879,7 @@ TEST(GMM, FitTwoKeypointsAfterAddAndRemoveHypothesis)
     int rightElbowKeypoint = 7;
 
     GMMParam<double> gmmParam;
-    gmmParam.KEYPOINTS = {5, 7};
+    gmmParam.setKeypoints({5, 7});
     gmmParam.splineKnotDelta = 45;
 
     LBFGSpp::LBFGSParam<double> lbfgsParam;
@@ -920,7 +920,7 @@ TEST(GMM, FitTwoKeypointsAfterAddAndRemoveHypothesis)
     std::cout << "Expected Theta (Right Elbow):" << std::endl;
     std::cout << expectedThetaRightElbow.format(HeavyFormat) << std::endl;
 
-    ASSERT_EQ(fitResults.size(), 2);
+    ASSERT_EQ(fitResults.size(), 3);
     ASSERT_TRUE(fitResults[rightShoulderKeypoint].parameters.theta.isApprox(expectedThetaRightShoulder, 1e-1));
     ASSERT_TRUE(fitResults[rightElbowKeypoint].parameters.theta.isApprox(expectedThetaRightElbow, 1e-1));
 }
@@ -945,7 +945,7 @@ GMM<double> initStandardGMM()
     double tol = 1e-1;
 
     GMMParam<double> gmmParam;
-    gmmParam.KEYPOINTS = KEYPOINTS;
+    gmmParam.setKeypoints(KEYPOINTS);
     gmmParam.splineKnotDelta = 45;
 
     LBFGSpp::LBFGSParam<double> lbfgsParam;

@@ -39,7 +39,7 @@ frame.camera.width = 10
 print('#############################################################')
 print('GMMParam:')
 
-print('KEYPOINTS:', gmmParam.KEYPOINTS)
+print('KEYPOINTS:', gmmParam.getKeypoints())
 print('nu:', gmmParam.nu)
 print('maxIter:', gmmParam.maxIter)
 print('keypointConfidenceThreshold:', gmmParam.keypointConfidenceThreshold)
@@ -48,7 +48,7 @@ print('splineDegree:', gmmParam.splineDegree)
 print('splineKnotDelta:', gmmParam.splineKnotDelta)
 print('maxFrameBuffer:', gmmParam.maxFrameBuffer)
 
-gmmParam.KEYPOINTS += [0, 1, 2]
+gmmParam.setKeypoints([0, 1, 2])
 gmmParam.nu += 1
 gmmParam.maxIter += 1
 gmmParam.keypointConfidenceThreshold += 1
@@ -128,7 +128,7 @@ print('#############################################################')
 with open("gmmParam.obj",'rb') as f:
     recGmmParam = pickle.load(f)
     print('Reconstructed GMMParam:', recGmmParam)
-    print('KEYPOINTS:', recGmmParam.KEYPOINTS)
+    print('KEYPOINTS:', recGmmParam.getKeypoints())
     print('nu:', recGmmParam.nu)
     print('maxIter:', recGmmParam.maxIter)
     print('keypointConfidenceThreshold:', recGmmParam.keypointConfidenceThreshold)

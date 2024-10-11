@@ -60,7 +60,7 @@ namespace MC3D_TRECSIM
     template <typename Scalar>
     void GMM<Scalar>::prepareGMMContainers(const std::map<int, ColMatrix<Scalar>> &initialThetas, const std::map<int, Vector<Scalar>> &initialPis)
     {
-        for (int KEYPOINT : gmmParam.KEYPOINTS)
+        for (int KEYPOINT : gmmParam.getKeypoints())
         {
             GMMContainer<Scalar> &gmmContainer = gmmContainers[KEYPOINT];
 
@@ -135,7 +135,7 @@ namespace MC3D_TRECSIM
         std::vector<bool> hypothesisSupports(J, false);
         std::vector<int> nHypothesisSupports(J, 0);
 
-        for (auto KEYPOINTIT = gmmParam.KEYPOINTS.begin(); KEYPOINTIT != gmmParam.KEYPOINTS.end(); ++KEYPOINTIT)
+        for (auto KEYPOINTIT = gmmParam.getKeypoints().begin(); KEYPOINTIT != gmmParam.getKeypoints().end(); ++KEYPOINTIT)
         {
             GMMContainer<Scalar> &gmmContainer = gmmContainers.find(*KEYPOINTIT)->second;
             fitResult.convergence = false;
@@ -204,7 +204,7 @@ namespace MC3D_TRECSIM
                 nSupportedMeanPoints = 0;
                 tempSupportedMeanPoint << 0, 0, 0;
 
-                for (auto KEYPOINTIT = gmmParam.KEYPOINTS.begin(); KEYPOINTIT != gmmParam.KEYPOINTS.end(); ++KEYPOINTIT)
+                for (auto KEYPOINTIT = gmmParam.getKeypoints().begin(); KEYPOINTIT != gmmParam.getKeypoints().end(); ++KEYPOINTIT)
                 {
                     GMMContainer<Scalar> &gmmContainer = gmmContainers[*KEYPOINTIT];
 
@@ -222,7 +222,7 @@ namespace MC3D_TRECSIM
                     newTheta.col(1) *= tempSupportedMeanPoint[1];
                     newTheta.col(2) *= tempSupportedMeanPoint[2];
 
-                    for (auto KEYPOINTIT = gmmParam.KEYPOINTS.begin(); KEYPOINTIT != gmmParam.KEYPOINTS.end(); ++KEYPOINTIT)
+                    for (auto KEYPOINTIT = gmmParam.getKeypoints().begin(); KEYPOINTIT != gmmParam.getKeypoints().end(); ++KEYPOINTIT)
                     {
                         GMMContainer<Scalar> &gmmContainer = gmmContainers.find(*KEYPOINTIT)->second;
 
@@ -249,58 +249,32 @@ namespace MC3D_TRECSIM
         return fitResults;
     }
 
+
     template <typename Scalar>
     void GMM<Scalar>::updateTrackingIdSupports(std::map<int, EMFitResult<Scalar>> &fitResults)
     {
         for (size_t j = 0; j < J; ++j)
         {
             for (size_t k = 0; k < cameras.size(); ++k)
-            {
-                std::unordered_map<unsigned int, Scalar> trackingIDResponsibility;
+            {   
 
-                for (const auto& containerPair : gmmContainers)
+                if (!gmmContainers[-1].supports[j].supported)
                 {
-                    if (containerPair.first == -1)
-                    {
-                        continue;
-                    }
-                    const GMMContainer<Scalar> &gmmContainer = containerPair.second;
-                    const RowMatrix<Scalar> &responsibilities = fitResults.at(containerPair.first).responsibilities;
-
-                    for (size_t n = 0; n < gmmContainer.keyPoints.size(); ++n)
-                    {
-                        const KeyPoint<Scalar> &kp = gmmContainer.keyPoints[n];
-
-                        if (kp.cameraIndex == k)
-                        {
-                            trackingIDResponsibility[kp.trackerIndex] += responsibilities(n, j);
-                        }
-                    }
+                    continue;
                 }
+                updateTrackingIdSupportWeightedMaxVote(j, k, fitResults);
 
-                // Find the tracking ID with the maximum cumulative responsibility
-                unsigned int bestTrackingID {0};
-                Scalar maxResponsibility {-std::numeric_limits<Scalar>::infinity()};
-
-                for (const auto &trackingPair : trackingIDResponsibility)
-                {
-                    if (trackingPair.second > maxResponsibility)
-                    {
-                        maxResponsibility = trackingPair.second;
-                        bestTrackingID = trackingPair.first;
-                    }
-                }
-
-                // Assign the best tracking ID to all keypoint types for this hypothesis (j) and camera (k)
-                for (auto& containerPair : gmmContainers)
-                {
-                    if (containerPair.first == -1)
-                    {
-                        continue;
-                    }
-                    GMMContainer<Scalar> &gmmContainer = containerPair.second;
-                    gmmContainer.supports[j].trackerIndices[k] = bestTrackingID;
-                }
+                // auto it = gmmContainers[-1].supports[j].trackerIndices.find(k);
+                // if (it == gmmContainers[-1].supports[j].trackerIndices.end()) 
+                // {
+                //     updateTrackingIdSupportBasedOnMean(j, k, fitResults[-1]);
+                //     // std::cout << "Updated hypothesis " << j << " for camera " << k << " based on mean: ";
+                //     // std::cout << gmmContainers[-1].supports[j].trackerIndices[k] << std::endl << std::endl;
+                // }
+                // else 
+                // {
+                //     updateTrackingIdSupportWeightedMaxVote(j, k, fitResults);
+                // }
             }
         }
 
@@ -317,9 +291,106 @@ namespace MC3D_TRECSIM
         //     }
         // }
         // std::cout << std::endl;
-
     }
 
+    template <typename Scalar>
+    void GMM<Scalar>::updateTrackingIdSupportBasedOnMean(
+        const int hypothesisIndex, 
+        const int cameraIndex, 
+        EMFitResult<Scalar> &meanFitResult
+        )
+    {
+        std::unordered_map<unsigned int, Scalar> trackingIDResponsibility;
+
+        const GMMContainer<Scalar> &gmmContainer = gmmContainers[-1];
+        const RowMatrix<Scalar> &responsibilities = meanFitResult.responsibilities;
+
+        for (size_t n = 0; n < gmmContainer.keyPoints.size(); ++n)
+        {
+            const KeyPoint<Scalar> &kp = gmmContainer.keyPoints[n];
+
+            if (kp.cameraIndex == cameraIndex)
+            {
+                trackingIDResponsibility[kp.trackerIndex] += responsibilities(n, hypothesisIndex);
+            }
+        }
+
+        // Find the tracking ID with the maximum responsibility
+        unsigned int bestTrackingID {0};
+        Scalar maxResponsibility {-std::numeric_limits<Scalar>::infinity()};
+
+        for (const auto &trackingPair : trackingIDResponsibility)
+        {
+            if (trackingPair.second > maxResponsibility)
+            {
+                maxResponsibility = trackingPair.second;
+                bestTrackingID = trackingPair.first;
+            }
+        }
+
+        if (gmmContainers[-1].supports[hypothesisIndex].trackerIndices[cameraIndex] != bestTrackingID)
+        {
+            std::cout << "Mean Hypothesis " << hypothesisIndex << ", camera " << cameraIndex << ": Tracker ID = " << bestTrackingID << std::endl;
+        }
+
+        // Assign the best tracking ID to all keypoint types for this hypothesis (hypothesisIndex) and camera (cameraIndex)
+        for (auto& containerPair : gmmContainers)
+        {
+            GMMContainer<Scalar> &gmmContainer = containerPair.second;
+            gmmContainer.supports[hypothesisIndex].trackerIndices[cameraIndex] = bestTrackingID;
+        }
+    }
+
+    template <typename Scalar>
+    void GMM<Scalar>::updateTrackingIdSupportWeightedMaxVote(
+        const int hypothesisIndex, 
+        const int cameraIndex, 
+        std::map<int, EMFitResult<Scalar>> &fitResults
+        )
+    {
+        std::unordered_map<unsigned int, Scalar> trackingIDResponsibility;
+
+        for (const auto& containerPair : gmmContainers)
+        {
+            const GMMContainer<Scalar> &gmmContainer = containerPair.second;
+            const RowMatrix<Scalar> &responsibilities = fitResults.at(containerPair.first).responsibilities;
+
+            for (size_t n = 0; n < gmmContainer.keyPoints.size(); ++n)
+            {
+                const KeyPoint<Scalar> &kp = gmmContainer.keyPoints[n];
+
+                if (kp.cameraIndex == cameraIndex)
+                {
+                    trackingIDResponsibility[kp.trackerIndex] += responsibilities(n, hypothesisIndex);
+                }
+            }
+        }
+
+        // Find the tracking ID with the maximum cumulative responsibility
+        unsigned int bestTrackingID {0};
+        Scalar maxResponsibility {-std::numeric_limits<Scalar>::infinity()};
+
+        for (const auto &trackingPair : trackingIDResponsibility)
+        {
+            if (trackingPair.second > maxResponsibility)
+            {
+                maxResponsibility = trackingPair.second;
+                bestTrackingID = trackingPair.first;
+            }
+        }
+
+        if (gmmContainers[-1].supports[hypothesisIndex].trackerIndices[cameraIndex] != bestTrackingID)
+        {
+            std::cout << "Max vote hypothesis " << hypothesisIndex << ", camera " << cameraIndex << ": Tracker ID = " << bestTrackingID << std::endl;
+        }
+
+        // Assign the best tracking ID to all keypoint types for this hypothesis (hypothesisIndex) and camera (cameraIndex)
+        for (auto& containerPair : gmmContainers)
+        {
+            GMMContainer<Scalar> &gmmContainer = containerPair.second;
+            gmmContainer.supports[hypothesisIndex].trackerIndices[cameraIndex] = bestTrackingID;
+        }
+    }
 
     template <typename Scalar>
     inline void GMM<Scalar>::addHypothesis()
@@ -342,7 +413,7 @@ namespace MC3D_TRECSIM
             std::cout << "New Theta: " << newTheta << std::endl;
         #endif
 
-            for (auto KEYPOINT : gmmParam.KEYPOINTS)
+            for (auto KEYPOINT : gmmParam.getKeypoints())
             {
                 GMMContainer<Scalar> &gmmContainer = gmmContainers[KEYPOINT];
                 gmmContainer.parameters.theta.conservativeResize(Eigen::NoChange, (J + 1) * 3);
@@ -373,7 +444,7 @@ namespace MC3D_TRECSIM
             hypothesisIds.push_back(currentHypothesisId++);
         }
 
-        for (auto KEYPOINT : gmmParam.KEYPOINTS)
+        for (auto KEYPOINT : gmmParam.getKeypoints())
         {
             gmmContainers[KEYPOINT].supports.push_back(Support(frames.size()-1));
         }
@@ -389,7 +460,7 @@ namespace MC3D_TRECSIM
     {
         if (gmmParam.autoManageTheta)
         {
-            for (auto KEYPOINT : gmmParam.KEYPOINTS)
+            for (auto KEYPOINT : gmmParam.getKeypoints())
             {
                 GMMContainer<Scalar> &gmmContainer = gmmContainers[KEYPOINT];
 
@@ -425,7 +496,7 @@ namespace MC3D_TRECSIM
     template <typename Scalar>
     void GMM<Scalar>::removeHypothesisKeyPoints(int index, std::map<int, EMFitResult<Scalar>> &fitResults)
     {
-        for (auto KEYPOINT : gmmParam.KEYPOINTS)
+        for (auto KEYPOINT : gmmParam.getKeypoints())
         {
             gmmContainers[KEYPOINT].supports.erase(gmmContainers[KEYPOINT].supports.begin() + index);
 
@@ -466,7 +537,7 @@ namespace MC3D_TRECSIM
 
                 if (gmmParam.autoManageTheta)
                 {
-                    for (auto KEYPOINT : gmmParam.KEYPOINTS)
+                    for (auto KEYPOINT : gmmParam.getKeypoints())
                     {
 #ifdef DEBUG_STATEMENTS
                         std::cout << "Thetas Before Frame Drop:" << gmmContainers[KEYPOINT].parameters.theta << std::endl;
@@ -483,7 +554,7 @@ namespace MC3D_TRECSIM
                 }
             }
 
-            for (auto keypoint : gmmParam.KEYPOINTS)
+            for (auto keypoint : gmmParam.getKeypoints())
             {
                 gmmContainers[keypoint].dropFrame();
             }
@@ -513,7 +584,7 @@ namespace MC3D_TRECSIM
             for (int p = frame.kpts.size() - 1; p >= 0; --p)
             {   
                 int nValidKeyPoints = 0;
-                for (auto KEYPOINT : gmmParam.KEYPOINTS)
+                for (auto KEYPOINT : gmmParam.getKeypoints())
                 {
                     /*if (!cameras[frame.cameraIndex].isPointInFrame(frame.kpts[p].row(KEYPOINT).head(2)))
                     {
@@ -560,7 +631,7 @@ namespace MC3D_TRECSIM
     template <typename Scalar>
     void GMM<Scalar>::fillupThetas()
     {
-        for (auto KEYPOINT : gmmParam.KEYPOINTS)
+        for (auto KEYPOINT : gmmParam.getKeypoints())
         {
             GMMContainer<Scalar> &gmmContainer = gmmContainers[KEYPOINT];
             int oldNumberOfRows = gmmContainer.parameters.theta.rows();
@@ -611,8 +682,12 @@ namespace MC3D_TRECSIM
                 CameraPoint<Scalar> personKptMean = CameraPoint<Scalar>::Zero(2);
                 int nrPersonKpts = 0;            
 
-                for (auto KEYPOINT : gmmParam.KEYPOINTS)
-                {
+                for (auto KEYPOINT : gmmParam.getKeypoints())
+                {   
+                    if (KEYPOINT == -1)
+                    {
+                        continue;
+                    }
                     if (person(KEYPOINT, 2) >= gmmParam.keypointConfidenceThreshold)
                     {
                         #ifdef DEBUG_STATEMENTS
@@ -637,12 +712,7 @@ namespace MC3D_TRECSIM
     template <typename Scalar>
     void GMM<Scalar>::initGMMContainers()
     {   
-        // Create GMMContainer for person detection mean points and assign keypoint id -1 to this
-        gmmContainers.insert(std::make_pair(-1, GMMContainer<Scalar>(-1, J, cameras, gmmParam.nu, gmmParam.trackingIdBiasWeight, designMatrix)));
-        gmmContainers[-1].parameters.pi = Vector<Scalar>::Ones(J) / J;
-
-        // Create GMMContainer for each keypoint
-        for (int KEYPOINT : gmmParam.KEYPOINTS)
+        for (int KEYPOINT : gmmParam.getKeypoints())
         {
             gmmContainers.insert(std::make_pair(KEYPOINT, GMMContainer<Scalar>(KEYPOINT, J, cameras, gmmParam.nu, gmmParam.trackingIdBiasWeight, designMatrix)));
             gmmContainers[KEYPOINT].parameters.pi = Vector<Scalar>::Ones(J) / J;

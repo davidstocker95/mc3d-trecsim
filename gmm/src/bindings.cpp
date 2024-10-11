@@ -196,7 +196,8 @@ PYBIND11_MODULE(gmm, m)
 
     py::class_<GMMParamD>(m, "GMMParam")
         .def(py::init<>())
-        .def_readwrite("KEYPOINTS", &GMMParamD::KEYPOINTS)
+        .def("getKeypoints", &GMMParamD::getKeypoints)
+        .def("setKeypoints", &GMMParamD::setKeypoints)
         .def_readwrite("LIMBS", &GMMParamD::LIMBS)
         .def_readwrite("limbRegulationFactor", &GMMParamD::limbRegulationFactor)
         .def_readwrite("nu", &GMMParamD::nu)
@@ -224,7 +225,7 @@ PYBIND11_MODULE(gmm, m)
             [](const GMMParamD &gmmParam)
             {
                 return py::make_tuple(
-                    gmmParam.KEYPOINTS,
+                    gmmParam.getKeypoints(),
                     gmmParam.LIMBS,
                     gmmParam.limbRegulationFactor,
                     gmmParam.nu,
@@ -251,7 +252,7 @@ PYBIND11_MODULE(gmm, m)
             {
                 GMMParamD gmmParam{};
 
-                gmmParam.KEYPOINTS = gmmParamTuple[0].cast<std::vector<int>>();
+                gmmParam.setKeypoints(gmmParamTuple[0].cast<std::vector<int>>());
                 gmmParam.LIMBS = gmmParamTuple[1].cast<std::vector<std::tuple<int, int, double, double>>>();
                 gmmParam.limbRegulationFactor = gmmParamTuple[2].cast<double>();
                 gmmParam.nu = gmmParamTuple[3].cast<double>();

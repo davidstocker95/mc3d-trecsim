@@ -14,7 +14,7 @@ TEST(HypothesisManager, CalculateMeanPoints)
     };
 
     GMMParam<double> gmmParam;
-    gmmParam.KEYPOINTS = std::vector<int>{0, 1, 2, 3, 4};
+    gmmParam.setKeypoints(std::vector<int>{0, 1, 2, 3, 4});
     HypothesisManager<double> hypothesisManager{std::vector<Camera<double>>{}, gmmParam};
     hypothesisManager.calculateMeanPoints(currentMeanPoints, kpts);
 
@@ -36,7 +36,7 @@ TEST(HypothesisManager, CalculateMeanPointsWeighted)
         (RowMatrix<double>(6, 3) << 1.0, 10.0, 0.3, 2.0, 20.0, 0.7, 3.0, 30.0, 0.6, 4.0, 40.0, 0.8, 5.0, 50.0, 0.1, 6.0, 60.0, 1.0).finished()};
 
     GMMParam<double> gmmParam;
-    gmmParam.KEYPOINTS = std::vector<int>{0, 1, 2, 3, 4};
+    gmmParam.setKeypoints(std::vector<int>{0, 1, 2, 3, 4});
     HypothesisManager<double> hypothesisManager{std::vector<Camera<double>>{}, gmmParam};
     hypothesisManager.calculateMeanPointsWeighted(currentMeanPoints, kpts);
 

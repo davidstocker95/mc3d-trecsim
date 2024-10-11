@@ -60,6 +60,10 @@ namespace MC3D_TRECSIM
 
         void updateTrackingIdSupports(std::map<int, EMFitResult<Scalar>> &fitResults);
         
+        void updateTrackingIdSupportBasedOnMean(const int hypothesisIndex, const int cameraIndex, EMFitResult<Scalar> &meanFitResult);
+
+        void updateTrackingIdSupportWeightedMaxVote(const int hypothesisIndex, const int cameraIndex, std::map<int, EMFitResult<Scalar>> &fitResults);
+        
         void removeHypothesis(int index);
 
         void removeHypothesisKeyPoints(int index, std::map<int, EMFitResult<Scalar>> &fitResults);

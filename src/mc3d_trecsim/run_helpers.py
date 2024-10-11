@@ -174,7 +174,7 @@ def create_gmm_param(config: LiveConfig) -> GMMParam:
     """
     gmm_param: GMMParam = GMMParam()
     gmm_param.tol = config.tol
-    gmm_param.KEYPOINTS = config.keypoints
+    gmm_param.setKeypoints(config.keypoints)
     gmm_param.LIMBS = config.limbs
     gmm_param.limbRegulationFactor = config.limb_regulation_factor
     gmm_param.maxIter = config.max_iter

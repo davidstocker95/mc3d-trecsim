@@ -94,7 +94,7 @@ namespace MC3D_TRECSIM
             CameraPoint<Scalar> meanPoint = CameraPoint<Scalar>::Zero(2);
             int nKeypoints = 0;
 
-            for (const int &KEYPOINT : gmmParam.KEYPOINTS)
+            for (const int &KEYPOINT : gmmParam.getPhysicalKeypoints())
             {
                 if (person(KEYPOINT, 2) >= gmmParam.keypointConfidenceThreshold)
                 {
@@ -119,7 +119,7 @@ namespace MC3D_TRECSIM
             CameraPoint<Scalar> meanPoint = CameraPoint<Scalar>::Zero(2);
             int nKeypoints = 0;
 
-            for (const int &KEYPOINT : gmmParam.KEYPOINTS)
+            for (const int &KEYPOINT : gmmParam.getPhysicalKeypoints())
             {
                 meanPoint += person.row(KEYPOINT).head(2) * person(KEYPOINT, 2);
                 ++nKeypoints;
