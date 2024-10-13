@@ -58,6 +58,7 @@ namespace MC3D_TRECSIM
 
         std::map<int, EMFitResult<Scalar>> fit(const std::map<int, ColMatrix<Scalar>> &initialThetas = std::map<int, ColMatrix<Scalar>>(), const std::map<int, Vector<Scalar>> &initialPis = std::map<int, Vector<Scalar>>());
 
+        void updateTrackingIdSupportsMeanInit(EMFitResult<Scalar> &meanFitResult);
         void updateTrackingIdSupports(std::map<int, EMFitResult<Scalar>> &fitResults);
         
         void updateTrackingIdSupportBasedOnMean(const int hypothesisIndex, const int cameraIndex, EMFitResult<Scalar> &meanFitResult);

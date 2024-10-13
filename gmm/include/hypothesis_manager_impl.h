@@ -82,7 +82,8 @@ namespace MC3D_TRECSIM
 
     template <typename Scalar>
     inline void HypothesisManager<Scalar>::removeHypothesis(int index)
-    {
+    {   
+        std::cout << "removeHypothesis: " << index << std::endl << std::endl;
         currentNumberOfHypothesis--;
     }
 

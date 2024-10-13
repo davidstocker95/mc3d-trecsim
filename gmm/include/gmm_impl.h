@@ -189,6 +189,11 @@ namespace MC3D_TRECSIM
             }
 
             fitResults[*KEYPOINTIT] = fitResult;
+
+            // if (*KEYPOINTIT == -1)
+            // {
+            //     updateTrackingIdSupportsMeanInit(fitResult);
+            // }
         }
 
         int offset{int(designMatrix.rows()) - spline.getNumBasis() + 1};
@@ -248,6 +253,36 @@ namespace MC3D_TRECSIM
 
         return fitResults;
     }
+
+    template <typename Scalar>
+    void GMM<Scalar>::updateTrackingIdSupportsMeanInit(EMFitResult<Scalar> &meanFitResult)
+    {
+        for (size_t j = 0; j < J; ++j)
+        {
+            for (size_t k = 0; k < cameras.size(); ++k)
+            {   
+
+                if (!gmmContainers[-1].supports[j].supported)
+                {
+                    continue;
+                }
+                updateTrackingIdSupportBasedOnMean(j, k, meanFitResult);
+
+                // auto it = gmmContainers[-1].supports[j].trackerIndices.find(k);
+                // if (it == gmmContainers[-1].supports[j].trackerIndices.end()) 
+                // {
+                //     updateTrackingIdSupportBasedOnMean(j, k, fitResults[-1]);
+                //     // std::cout << "Updated hypothesis " << j << " for camera " << k << " based on mean: ";
+                //     // std::cout << gmmContainers[-1].supports[j].trackerIndices[k] << std::endl << std::endl;
+                // }
+                // else 
+                // {
+                //     updateTrackingIdSupportWeightedMaxVote(j, k, fitResults);
+                // }
+            }
+        }
+    }
+
 
 
     template <typename Scalar>
