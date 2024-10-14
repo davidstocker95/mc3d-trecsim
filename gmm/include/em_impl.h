@@ -47,6 +47,7 @@ namespace MC3D_TRECSIM
             for (int j = 0; j < model.getNumHypothesis(); ++j)
             {
                 responsibilites(n, j) = std::exp(logProbs(n, j) - max(n)) / sumExps(n);
+                std::cout << "Responsibility: " << responsibilites(n, j) << std::endl;
             }
         }
     }
