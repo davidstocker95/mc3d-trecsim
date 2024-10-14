@@ -68,10 +68,25 @@ namespace MC3D_TRECSIM
             if (support.supported)
             {
                 support.notSupportedSince = 0;
-            }
-            else
+            } 
+            else 
             {
-                ++support.notSupportedSince;
+                bool foundMatch = false;
+                for (const auto &kpt : model.keyPoints)
+                {
+                    // Check if the keypoint tracker index matches the support's tracker index for the camera
+                    if (kpt.trackerIndex == support.trackerIndices[kpt.cameraIndex])
+                    {
+                        support.notSupportedSince = 0;
+                        foundMatch = true; 
+                        break;
+                    }
+                }
+                
+                if (!foundMatch)
+                {
+                    ++support.notSupportedSince;
+                }
             }
         }
 
